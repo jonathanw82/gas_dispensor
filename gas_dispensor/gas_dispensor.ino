@@ -1,7 +1,7 @@
 #include <DFRobot_EOxygenSensor.h>
 #include <Wire.h>                   // I2c enable Lib
 #include <avr/wdt.h>                // Watchdog Lib
-#include <Controllino.h>            // Controllino Lib to allow aliases
+//#include <Controllino.h>            // Controllino Lib to allow aliases
 #include <SPI.h>                    // Allow access to serial
 #include <PID.h>
 
@@ -18,7 +18,9 @@ unsigned long prev_Compute_time;
 unsigned long compute_interval = 5000;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Controllino pins with alias  ~~~~~~~~~~~~~~~~~~~~~~~~
-int gas_output_solonoid = CONTROLLINO_D0;
+//int gas_output_solonoid = CONTROLLINO_D0;
+
+int gas_output_solonoid = LED_BUILTIN;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Oxygen sensor  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -34,12 +36,12 @@ void setup() {
   gasPID.max_out = 100;
   gasPID.min_out = -100;
   pinMode(gas_output_solonoid, OUTPUT);
-  digitalWrite(gas_output_solonoid, off);
+  //digitalWrite(gas_output_solonoid, off);
 
-  while (!oxygen.begin()) {
-    Serial.println("NO Deivces !");
-    delay(1000);
-  } Serial.println("Device connected successfully !");
+//  while (!oxygen.begin()) {
+//    Serial.println("NO Deivces !");
+//    delay(1000);
+//  } Serial.println("Device connected successfully !");
 
   wdt_enable(WDTO_2S);
 }
@@ -47,17 +49,21 @@ void setup() {
 void loop() {
   wdt_reset();
   get_oxygen_reading();
+  check_time_values();
+  time_control_loop();
   if (millis() - prev_Compute_time > compute_interval) { // Compute every 5 seconds
     prev_Compute_time = millis();
     gasPID.Compute();
+    debug();
   }
 }
 
 void get_oxygen_reading() {
-  oxygen_value = oxygen.readOxygenConcentration();
-  Serial.print("oxygen concetnration is ");
-  Serial.print(oxygen_value);
-  Serial.println("% VOL");
+//  oxygen_value = oxygen.readOxygenConcentration();
+  oxygen_value = 20.22;
+//  Serial.print("oxygen concetnration is ");
+//  Serial.print(oxygen_value);
+//  Serial.println("% VOL");
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Time values ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,10 +86,10 @@ void time_control_loop() {
 
   if (millis() - time_loop_start < (gas_on_time * 1000)) {
     if (gas_output > 0) {
-      activate_solonoid();
+      digitalWrite(gas_output_solonoid, off);
     }
     else {
-      digitalWrite(gas_output_solonoid, off);
+      activate_solonoid();  // increas nitrogen level 
     }
   }
   else {
@@ -92,12 +98,10 @@ void time_control_loop() {
 }
 
 void activate_solonoid() {
-  // pulse the gas_output solonoid
   static int interval_time = 1000;
-
   if (millis() - wait_timer < interval_time) {
     return;
   }
   wait_timer = millis();
-  digitalWrite(gas_output_solonoid, !digitalRead(gas_output_solonoid));
+  digitalWrite(gas_output_solonoid, !digitalRead(gas_output_solonoid));   // pulse the gas_output solonoid to avoid freezing
 }
