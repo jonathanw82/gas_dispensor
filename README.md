@@ -1,5 +1,5 @@
 <div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/.jpg" alt="mist image"/>
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/mist.jpg" alt="mist image"/>
  </div>
 
 # Overview
