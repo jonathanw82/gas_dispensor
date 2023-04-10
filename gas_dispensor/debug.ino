@@ -2,6 +2,9 @@ void debug() {
   static float error_val = oxygen_target_level - actual_oxygen_level;
 
   Serial.println("");
+  Serial.print("Safe Oxygen level ");
+  Serial.print(safe_oxygen_level);
+  Serial.println(" %vol");
   Serial.print("oxygen concetnration is ");
   Serial.print(actual_oxygen_level);
   Serial.println("% VOL");
