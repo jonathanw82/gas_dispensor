@@ -1,3 +1,7 @@
+/*
+  For more information on this code https://github.com/jonathanw82/gas_dispensor
+*/
+
 #include <DFRobot_MultiGasSensor.h>
 #include <DFRobot_EOxygenSensor.h>
 #include <Wire.h>     // I2c enable Lib
@@ -28,6 +32,7 @@ float D = 0;
 //int gas_output_solenoid = CONTROLLINO_D0;
 
 const uint8_t gas_output_solenoid = LED_BUILTIN;
+const uint8_t warning_beacon = 2;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Oxygen sensor  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -46,7 +51,10 @@ void setup() {
   gasPID.max_out = 100;
   gasPID.min_out = -100;
   pinMode(gas_output_solenoid, OUTPUT);
-  //digitalWrite(gas_output_solenoid, off);
+  digitalWrite(gas_output_solenoid, off);
+  pinMode(warning_beacon, OUTPUT);
+  digitalWrite(warning_beacon, off);
+  //
   //safetyOxygenSensor.begin();
   //  while (!oxygen.begin()) {
   //    Serial.println("NO Deivces !");
@@ -82,6 +90,7 @@ void safetyCheck() {
 
   if (safety_shut_down) {
     digitalWrite(gas_output_solenoid, off);
+    digitalWrite(warning_beacon, on);
     if (millis() - timer < 1000) {
       return;
     }
