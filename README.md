@@ -3,11 +3,13 @@
  </div>
 
 # Overview
-This experiment proves that aeroponics could be less susceptible to [Pythium](https://en.wikipedia.org/wiki/Pythium), a significant issue for spinach in hydroponic greenhouse production. This is to confirm that it is possibly due to increased oxygenation with an aeroponic system.
+This experiment is intended to prove that aeroponics could be less susceptible to [Pythium](https://en.wikipedia.org/wiki/Pythium) a type of root rot, a significant issue for spinach in hydroponic greenhouse production. This test is to confirm that it is possibly due to increased oxygenation with the root zone of the aeroponic system.
 
 The gas dispenser is to reduce the oxygen level in the root zone of an aeroponic growbed by adding nitrogen to bring down the percentage of oxygen.
 
-As can be seen in Fig 1 on average breathable air is made up of oxygen 21%, nitrogen 78.1% and argon and other gasses make only 0.9% of that carbon dioxide makes up 0.04%
+As can be seen in Fig 1 on average breathable air is made up of oxygen 21%, nitrogen 78.1% and argon and other gasses make only 0.9% of that carbon dioxide makes up 0.04%. 
+
+More information on the composition of air can be found [here.](https://en.wikipedia.org/wiki/Atmosphere_of_Earth)
 
 Therefore increasing the nitrogen level will decrease the oxygen level. Over a period of time, this can prove if aeroponics does indeed give the root zone more assess to oxygen and decrease the susceptibility to pythium.
 
@@ -55,7 +57,7 @@ oxygen alarms
 If the oxygen in the room falls below 19.5% the alarm will sound alerty the staff of unsafe working conditions and to exit the room immediatly.
 ## Notes:
 
-[Composition of air](https://en.wikipedia.org/wiki/Atmosphere_of_Earth)
+
 
 <hr>
 https://www.onestopgrowshop.co.uk/pro-leaf-co2-regulator.html
