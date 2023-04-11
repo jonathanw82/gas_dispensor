@@ -17,7 +17,6 @@ float time_period = 30;
 float gas_on_time = 0;
 float gas_off_time = 0;
 float gas_output = 0;
-unsigned long solenoid_wait_timer;
 unsigned long prev_Compute_time;
 uint16_t pid_compute_interval = 5000;
 uint16_t solenoid_pulse_interval = 1000;
@@ -48,11 +47,12 @@ void setup() {
   gasPID.min_out = -100;
   pinMode(gas_output_solenoid, OUTPUT);
   //digitalWrite(gas_output_solenoid, off);
-
+  //safetyOxygenSensor.begin();
   //  while (!oxygen.begin()) {
   //    Serial.println("NO Deivces !");
   //    delay(1000);
   //  } Serial.println("Device connected successfully !");
+
   safetyOxygenSensor.changeAcquireMode(safetyOxygenSensor.PASSIVITY);
   wdt_enable(WDTO_2S);
 }
@@ -132,6 +132,7 @@ void time_control_loop() {
 }
 
 void activate_solenoid() {
+  static unsigned long solenoid_wait_timer;
   if (millis() - solenoid_wait_timer < solenoid_pulse_interval) {
     return;
   }
