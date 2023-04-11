@@ -28,16 +28,23 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 * 1 x Cyclinder of nitrogen
 * 1 x Bottle regulator with solenoid [Here](https://www.onestopgrowshop.co.uk/pro-leaf-co2-regulator.html)
 
+### Fig 2
+<div align="center">
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/wireing.jpg" alt="schymatic"/>
+ </div>
+<br>
+
 ## Process:
 The safety sensor will read the ambient oxygen level in the room. To see if the level of oxygen is within safe levels. Under normal atmospheric pressure conditions, a human normally inhales air that contains 20.9% oxygen, if this falls even by 1 or 2% then it starts to become more laborious and the environment turns hypoxic meaning that oxygen levels are low and could be harmful. [More here](#safety)
 
 If ambiant levels are safe an O2 sensor in the root zone growbed will feed its oxygen data back to a PID algorithm, from here it will decide on the next course of action. For instance, if the oxygen level is higher than the set point, the controller will turn on the solenoid valve for a percentage of a time period, this allows the gases to pass up through the growbed and reach the sensor. 
 <br>
-### Fig 2
+### Fig 3
 <div align="center">
    <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/timeperiod.jpg" alt="time"/>
  </div>
 <br>
+
 For now lets say a period of 30 seconds this could be 10 seconds or whatever length of time you want to tune the PID algorithm to, after the 30 seconds have elapsed it will turn on the solenoid again for a percentage of the time, depending on how far or close to the set point the oxygen level is the PID controller will adjust the percentage of time accordingly to attempt to reach the setpoint and maintain it without under or overshooting it.
 
 ## Safety:
