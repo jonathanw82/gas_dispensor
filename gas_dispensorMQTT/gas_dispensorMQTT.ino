@@ -6,7 +6,6 @@
 #include <DFRobot_EOxygenSensor.h>
 #include <Wire.h>     // I2c enable Lib
 #include <avr/wdt.h>  // Watchdog Lib
-//#include <Controllino.h>            // Controllino Lib to allow aliases
 #include <SPI.h>  // Allow access to serial
 #include <PID.h>
 #include <WiFiNINA.h>
@@ -46,8 +45,6 @@ uint16_t solenoid_pulse_interval = 1000;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Controllino pins with alias  ~~~~~~~~~~~~~~~~~~~~~~~~
-//int gas_output_solenoid = CONTROLLINO_D0;
-
 const uint8_t gas_output_solenoid = LED_BUILTIN;
 const uint8_t warning_beacon = 2;
 
