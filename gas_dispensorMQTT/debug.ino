@@ -27,12 +27,7 @@ void debug() {
   Serial.print("solenoid pulse interval ");
   Serial.println(solenoid_pulse_interval);
   Serial.print("PID compute interval ");
-  Serial.println(pid_compute_interval);
-  Serial.print("P ");
-  Serial.println(P);
-  Serial.print("I ");
-  Serial.println(I);
-  Serial.print("D ");
-  Serial.println(D);
-  
+  Serial.println(pid_compute_interval); 
+  Serial.print("Time Period ");
+  Serial.println(time_period); 
 }

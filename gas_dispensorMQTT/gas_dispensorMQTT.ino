@@ -16,7 +16,7 @@
 #define WIFI_NAME "TP-LINK_Extender_2.4GHz"
 #define WIFI_PASSWORD "n6qYCUw46aUMv7"
 #define MQTT_HOST "192.168.1.88"
-#define PUBLISH_PATH "Gas_Dispenser/R1/"
+#define PUBLISH_PATH "Gas_Dispenser/"
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
 #define DEVICE_NAME "Gas_Dispenser"
 char LOCATION[5] = "R1";
@@ -36,16 +36,14 @@ float safe_oxygen_level_min = 19.5;
 bool safety_shut_down = false;
 float actual_oxygen_level = 0;
 float oxygen_target_level = 10;  // target for oxygen is 10%
-float time_period = 30;
+int time_period = 30;
 float gas_on_time = 0;
 float gas_off_time = 0;
 float gas_output = 0;
 unsigned long prev_Compute_time;
 uint16_t pid_compute_interval = 5000;
 uint16_t solenoid_pulse_interval = 1000;
-float P = 10;
-float I = 0.2;
-float D = 0;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Controllino pins with alias  ~~~~~~~~~~~~~~~~~~~~~~~~
 //int gas_output_solenoid = CONTROLLINO_D0;
@@ -61,8 +59,18 @@ DFRobot_EOxygenSensor_I2C oxygen(&Wire, 0x70);  // main sensor in the grow bed
 DFRobot_GAS_I2C safetyOxygenSensor(&Wire, 0x74);  // safety sensor to shut down output if the oxgen level in the room is unsafe
 
 // input, output, target,P,I,D
-PID gasPID(&actual_oxygen_level, &gas_output, &oxygen_target_level, P, I, D);  // Decalre the PID classes
+PID gasPID(&actual_oxygen_level, &gas_output, &oxygen_target_level, 10, 0.2, 0);  // Decalre the PID classes
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Watchdog ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+void watchdogSetup() {
+#ifdef ARDUINO_ARCH_MEGAAVR
+  if (RSTCTRL.RSTFR & RSTCTRL_WDRF_bm) {
+    Serial.println(F("It was a watchdog reset."));
+  }
+  RSTCTRL.RSTFR |= RSTCTRL_WDRF_bm ;
+  wdt_enable(WDT_PERIOD_2KCLK_gc);
+#endif
+}
 
 void setup() {
   Serial.begin(9600);
@@ -71,6 +79,7 @@ void setup() {
   gasPID.init();  // Initialise Pid for temp and hum
   gasPID.max_out = 100;
   gasPID.min_out = -100;
+  get_EEprom();
   pinMode(gas_output_solenoid, OUTPUT);
   digitalWrite(gas_output_solenoid, off);
   pinMode(warning_beacon, OUTPUT);
@@ -83,7 +92,7 @@ void setup() {
   //  } Serial.println("Device connected successfully !");
 
   safetyOxygenSensor.changeAcquireMode(safetyOxygenSensor.PASSIVITY);
-  wdt_enable(WDTO_2S);
+  watchdogSetup();
 }
 
 void loop() {
@@ -97,7 +106,7 @@ void loop() {
       prev_Compute_time = millis();
       get_oxygen_reading();
       gasPID.Compute();
-      debug();
+      //debug();
       publishMQTT();
     }
   }

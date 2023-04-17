@@ -6,6 +6,8 @@ void setUpMqtt() {
 void construct_path(char* dest ,char* endpoint){
   char subpath[200];
   strcpy(subpath, SUBSCRIBE_PATH);
+  strcat(subpath, OWNER);
+  strcat(subpath, "/");
   strcat(subpath, LOCATION);
   strcat(subpath, "/");
   strcat(subpath, endpoint);
@@ -32,10 +34,20 @@ void maintain_mqtt_connection() {
 
   char path[200];
 
-  // construct_path(path, "reset");
-  // mqtt_client.subscribe(path);
-  // construct_path(path, "Sensor_0");
-  // mqtt_client.subscribe(path);
+  construct_path(path, "reset");
+  mqtt_client.subscribe(path);
+  construct_path(path, "P");
+  mqtt_client.subscribe(path);
+  construct_path(path, "I");
+  mqtt_client.subscribe(path); 
+  construct_path(path, "D");
+  mqtt_client.subscribe(path);
+  construct_path(path, "oxygen_target_level");
+  mqtt_client.subscribe(path);
+  construct_path(path, "solenoid_pulse_interval");
+  mqtt_client.subscribe(path);
+  construct_path(path, "time_period");
+  mqtt_client.subscribe(path);
 }
 
 
