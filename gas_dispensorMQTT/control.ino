@@ -1,7 +1,3 @@
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ String comparason ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-bool str_startwith(char* string, char* start) {
-  return string == strstr(string, start);
-}
 
 float payloadCovertedToFloat(char* payload, int payload_length) {
   payload[payload_length] = '\0';
@@ -52,27 +48,27 @@ void control_commands(char* topic, char* payload, int payload_length) {
       break;
     case 1:
       gasPID.P = payloadCovertedToFloat(payload, payload_length);
-      write_to_EEprom();
+      EEPROM.put(0, gasPID.P);
       break;
     case 2:
       gasPID.I = payloadCovertedToFloat(payload, payload_length);
-      write_to_EEprom();
+      EEPROM.put(5, gasPID.I);
       break;
     case 3:
       gasPID.D = payloadCovertedToFloat(payload, payload_length);
-      write_to_EEprom();
+      EEPROM.put(5, gasPID.D);
       break;
     case 4:
       oxygen_target_level = payloadCovertedToFloat(payload, payload_length);
-      write_to_EEprom();
+      EEPROM.put(15, oxygen_target_level);
       break;
     case 5:
       time_period = payloadCovertedToInt(payload, payload_length);
-      write_to_EEprom();
+      EEPROM.put(20, time_period);
       break;
     case 6:
       solenoid_pulse_interval = payloadCovertedToInt(payload, payload_length);
-      write_to_EEprom();
+      EEPROM.put(25, solenoid_pulse_interval);
       break;
   }
 }

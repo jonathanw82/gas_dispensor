@@ -1,4 +1,5 @@
 bool wifi() {
+  static int isWifiConnectedCounter = 0;
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println(F("Communication with WiFi module failed!"));
@@ -27,7 +28,14 @@ bool wifi() {
     } else {
       Serial.println(F("connection successfull!"));
       setUpMqtt();                              // Setup The MQTT protacol
+      byte mac[6];
+      WiFi.macAddress(mac);
+      getMacAddress(mac);
       return true;
     }
   }
+}
+
+void getMacAddress(byte mac[]) {
+    sprintf(MACADDRESS, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }

@@ -22,26 +22,32 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 ## Hardware:
 
 * 1 x Arduino Uno wifi rev2
-* 2 x 5v relays
+* 4 x 5v relays
 * 1 x 5v PSU
 * 1 x Gravity: Electrochemical Oxygen / O2 Sensor (0-100%Vol, I2C) [Here](https://www.dfrobot.com/product-2569.html) (Main 02 sensor) 
 * 1 x Gravity: O2 Sensor (Calibrated, I2C & UART) [Here](https://thepihut.com/products/gravity-o2-sensor-calibrated-i2c-uart?variant=41620114866371&currency=GBP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAjw586hBhBrEiwAQYEnHaFBwm7ZAKjgB-vlygECEoYnv8AqbQjYx805CCJuayE0CSrMo6SIVhoCAVIQAvD_BwE) (Safety sensor)
 * 1 x Project box
 * 1 x Cyclinder of nitrogen
 * 1 x Bottle regulator with solenoid [Here](https://www.onestopgrowshop.co.uk/pro-leaf-co2-regulator.html)
+* 1 x Nitrogen Regulator [Here](https://www.welduk.com/nitrogen-regulator-p64)
+* 1 x 1/4 male to 3/8 female BSP adaptor [Here](https://www.air-compressorsdirect.co.uk/bsp-fittings/taper-1-4-male-to-3-8-female-bsp-adaptor)
 * 1 x Warning beacon
+* 3 x LED
 
 <br>
 
 | Component               | Consumption        |
 | :----------------       | :-----------       |
 | Arduino Uno Wifi Rev2   | @ 5v 93 ma         |
-| Twin relay              | @ 5v 40 ma         |
+| Quad relay              | @ 5v 80 ma         |
 | Oxygen sensor SEN0465   | @ 5v < 5 ma        |
 | Oxygen sesnor AA428-210 | @ 5v < 6.5 ma      |
 | Warning Beacon          | @ 12v 300 ma       |
 | Gas Solenoid            | @ 240v 1 amp       |
-|                         |Total = 1,441.88    |
+| Green status LED        | @ 5v 60 ma         |
+| RED status LED          | @ 5v 60 ma         |
+| AMBER status LED        | @ 5v 60 ma         |
+|                         |Total = 1,661.88    |
 
 <br>
 ### Fig 2

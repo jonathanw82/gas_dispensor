@@ -3,7 +3,8 @@ void setUpMqtt() {
   mqtt_client.onMessageAdvanced(mqtt_message);
 }
 
-void construct_path(char* dest ,char* endpoint){
+char path[200];
+char* construct_path(char* endpoint){
   char subpath[200];
   strcpy(subpath, SUBSCRIBE_PATH);
   strcat(subpath, OWNER);
@@ -11,10 +12,12 @@ void construct_path(char* dest ,char* endpoint){
   strcat(subpath, LOCATION);
   strcat(subpath, "/");
   strcat(subpath, endpoint);
-  strcpy(dest, subpath);
+  strcpy(path, subpath);
+  return path;
 }
 
 void maintain_mqtt_connection() {
+  static long last_connection_attempt = 0;
   if (mqtt_client.connected()) {
     return;
   }
@@ -32,22 +35,14 @@ void maintain_mqtt_connection() {
   }
   Serial.println(F("success!"));
 
-  char path[200];
-
-  construct_path(path, "reset");
-  mqtt_client.subscribe(path);
-  construct_path(path, "P");
-  mqtt_client.subscribe(path);
-  construct_path(path, "I");
-  mqtt_client.subscribe(path); 
-  construct_path(path, "D");
-  mqtt_client.subscribe(path);
-  construct_path(path, "oxygen_target_level");
-  mqtt_client.subscribe(path);
-  construct_path(path, "solenoid_pulse_interval");
-  mqtt_client.subscribe(path);
-  construct_path(path, "time_period");
-  mqtt_client.subscribe(path);
+ 
+  mqtt_client.subscribe(construct_path("reset"));
+  mqtt_client.subscribe(construct_path("P"));
+  mqtt_client.subscribe(construct_path("I"));
+  mqtt_client.subscribe(construct_path("D"));
+  mqtt_client.subscribe(construct_path("oxygen_target_level"));
+  mqtt_client.subscribe(construct_path("solenoid_pulse_interval"));
+  mqtt_client.subscribe(construct_path("time_period"));
 }
 
 

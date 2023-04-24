@@ -1,4 +1,4 @@
-void publishMQTT(){
+void publishMQTT() {
 
   static float error_val = actual_oxygen_level - oxygen_target_level;
 
@@ -14,15 +14,19 @@ void publishMQTT(){
 
   mqtt_client.publish(pubpath + String("Room_Oxygen_level"), String(safe_oxygen_level));
   mqtt_client.publish(pubpath + String("Bed_Oxygen_level"), String(actual_oxygen_level));
+  wdt_reset();
   mqtt_client.publish(pubpath + String("P"), String(gasPID.P));
   mqtt_client.publish(pubpath + String("I"), String(gasPID.I));
   mqtt_client.publish(pubpath + String("D"), String(gasPID.D));
+  wdt_reset();
   mqtt_client.publish(pubpath + String("oxygen_target_level"), String(oxygen_target_level));
   mqtt_client.publish(pubpath + String("PID_gas_error"), String(error_val));
   mqtt_client.publish(pubpath + String("PID_Gas_output"), String(gas_output));
+  wdt_reset();
   mqtt_client.publish(pubpath + String("Gas_P_response"), String(gasPID.P_response));
   mqtt_client.publish(pubpath + String("Gas_I_response"), String(gasPID.I_response));
   mqtt_client.publish(pubpath + String("Gas_D_response"), String(gasPID.D_response));
+  wdt_reset();
   mqtt_client.publish(pubpath + String("Gas_on_time"), String(gas_on_time));
   mqtt_client.publish(pubpath + String("Gas_off_time"), String(gas_off_time));
   mqtt_client.publish(pubpath + String("solenoid_pulse_interval"), String(solenoid_pulse_interval));
@@ -30,9 +34,28 @@ void publishMQTT(){
   mqtt_client.publish(pubpath + String("Solenoid_active"), String(check_pin_state(gas_output_solenoid)));
 }
 
+void publishLockoutState() {
+  static unsigned long timer = 0;
+
+  if (millis() - timer < 5000) {
+    return;
+  }
+
+  char pubpath[200];
+  strcpy(pubpath, PUBLISH_PATH);
+  strcat(pubpath, OWNER);
+  strcat(pubpath, "/");
+  strcat(pubpath, LOCATION);
+  strcat(pubpath, "/");
+  wdt_reset();
+  mqtt_client.publish(pubpath + String("Room_Oxygen_level"), String(safe_oxygen_level));
+  mqtt_client.publish(pubpath + String("Safety Lockout"), String(safety_lockout));
+  mqtt_client.publish(pubpath + String("Runaway Lockout"), String(runaway_lockout));
+}
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Output pin state ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 bool check_pin_state(int pin) {
   bool state;
-  return state = digitalRead(pin);      // Checks the status of the output pins
+  return state = digitalRead(pin);  // Checks the status of the output pins
 }
