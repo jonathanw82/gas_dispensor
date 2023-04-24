@@ -1,7 +1,7 @@
+
 /*
   For more information on this code https://github.com/jonathanw82/gas_dispensor
 */
-
 #include <DFRobot_MultiGasSensor.h>
 #include <DFRobot_EOxygenSensor.h>
 #include <Wire.h>     // I2c enable Lib
@@ -11,9 +11,10 @@
 #include <WiFiNINA.h>
 #include <MQTT.h>
 #include <EEPROM.h>
+#include <credentials.h>
 
-#define WIFI_NAME "TP-LINK_Extender_2.4GHz"
-#define WIFI_PASSWORD "n6qYCUw46aUMv7"
+#define WIFI_NAME ssid
+#define WIFI_PASSWORD password
 #define MQTT_HOST "192.168.1.88"
 #define PUBLISH_PATH "Gas_Dispenser/"
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
