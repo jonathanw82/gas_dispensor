@@ -56,7 +56,11 @@ void control_commands(char* topic, char* payload, int payload_length) {
       break;
     case 3:
       gasPID.D = payloadCovertedToFloat(payload, payload_length);
+<<<<<<< HEAD
       EEPROM.put(10, gasPID.D);
+=======
+      EEPROM.put(5, gasPID.D);
+>>>>>>> ab42ecad405cb0b4d4c0826a88a930aacd4b2abb
       break;
     case 4:
       oxygen_target_level = payloadCovertedToFloat(payload, payload_length);
