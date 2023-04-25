@@ -50,8 +50,6 @@ void maintain_mqtt_connection() {
   mqtt_client.subscribe(path);
 }
 
-
-
 void mqtt_message(MQTTClient * client, char topic[], char payload[], int payload_length) {
   Serial.print("message recieved: ");
   Serial.print(topic);

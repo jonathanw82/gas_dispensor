@@ -19,7 +19,7 @@
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
 #define DEVICE_NAME "Gas_Dispenser"
 char LOCATION[5] = "R1";
-char OWNER[10] = "Jon";
+char OWNER[10] = "owner=JON";
 int status = WL_IDLE_STATUS;
 MQTTClient mqtt_client;
 WiFiClient www_client;
@@ -125,11 +125,12 @@ void safetyCheck() {
       return;
     }
     timer = millis();
-    Serial.print("Safe Oxygen level ");
+    Serial.print(F("Safe Oxygen level "));
     //Serial.print(safetyOxygenSensor.readGasConcentrationPPM());
     Serial.print(safe_oxygen_level);
-    Serial.println(" %vol");
-    Serial.println("********* DANGER OXYGEN LEVEL LOW SAFETY SHUTDOWN *********");
+    Serial.println(F(" %vol"));
+    Serial.println(F("********* DANGER OXYGEN LEVEL LOW SAFETY SHUTDOWN *********"));
+    
     char pubpath[200];
     strcpy(pubpath, SUBSCRIBE_PATH);
     strcat(pubpath, OWNER);
