@@ -43,8 +43,7 @@ unsigned long prev_Compute_time;
 uint16_t pid_compute_interval = 5000;
 uint16_t solenoid_pulse_interval = 1000;
 
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Controllino pins with alias  ~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre control pins  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const uint8_t gas_output_solenoid = LED_BUILTIN;
 const uint8_t gas_safety_relay = 2;
 const uint8_t warning_beacon = 3;
@@ -61,7 +60,7 @@ DFRobot_GAS_I2C safetyOxygenSensor(&Wire, 0x74);  // safety sensor to shut down 
 // input, output, target,P,I,D
 PID gasPID(&actual_oxygen_level, &gas_output, &oxygen_target_level, 10, 0.2, 0);  // Decalre the PID classes
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Watchdog ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Watchdog ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void watchdogSetup() {
 #ifdef ARDUINO_ARCH_MEGAAVR
   if (RSTCTRL.RSTFR & RSTCTRL_WDRF_bm) {
@@ -72,6 +71,7 @@ void watchdogSetup() {
 #endif
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void setup() {
   Serial.begin(9600);
   wifi();
@@ -106,15 +106,20 @@ void loop() {
   maintain_mqtt_connection();
   safetyCheck();
 
+  if (gas_on_time == 100) {
+    gasSystemErrorCheck();
+  }
+
   if (!safety_lockout) {
-    check_time_values();
-    time_control_loop();
-    if (millis() - prev_Compute_time > pid_compute_interval) {  // Compute every 5 seconds
-      prev_Compute_time = millis();
-      get_oxygen_reading();
-      gasPID.Compute();
-      //debug();
-      publishMQTT();
+    if (!runaway_lockout) {
+      check_time_values();
+      time_control_loop();
+      if (millis() - prev_Compute_time > pid_compute_interval) {  // Compute every 5 seconds
+        prev_Compute_time = millis();
+        get_oxygen_reading();
+        gasPID.Compute();
+        publishMQTT();
+      }
     }
   }
 
@@ -139,6 +144,7 @@ void safetyCheck() {
   getSafeOxygenSample();
   if (safe_oxygen_level <= safe_oxygen_level_min) {
     safety_lockout = true;  // the system will have to phsically reset to start up again
+    digitalWrite(gas_safety_relay, off);
     digitalWrite(red_lockout_led, on);
   } else {
     digitalWrite(gas_safety_relay, on);
@@ -158,18 +164,6 @@ void safetyCheck() {
     Serial.print(safe_oxygen_level);
     Serial.println(F(" %vol"));
     Serial.println(F("********* DANGER OXYGEN LEVEL LOW SAFETY SHUTDOWN *********"));
-    
-    // char pubpath[200];
-    // strcpy(pubpath, SUBSCRIBE_PATH);
-    // strcat(pubpath, OWNER);
-    // strcat(pubpath, "/");
-    // strcat(pubpath, LOCATION);
-    // strcat(pubpath, "/");
-    // mqtt_client.publish(pubpath + String("********* DANGER ROOM OXYGEN LEVEL LOW SHUTDOWN *********"));
-
-    Serial.println(" %vol");
-    Serial.println("********* DANGER OXYGEN LEVEL LOW SAFETY SHUTDOWN *********");
-
   }
 }
 
@@ -217,5 +211,5 @@ void activate_solenoid() {
   }
   solenoid_wait_timer = millis();
   digitalWrite(gas_output_solenoid, !digitalRead(gas_output_solenoid));  // pulse the gas_output solenoid to avoid freezing
-  digitalWrite(abmer_solenoid_active_led, !digitalRead(abmer_solenoid_active_led)); 
+  digitalWrite(abmer_solenoid_active_led, !digitalRead(abmer_solenoid_active_led));
 }
