@@ -67,6 +67,7 @@ void gasSystemRunawayStateCheck(bool reset) {
         getsample1 = false;
         Serial.println(F("Got sample 1"));
         timer = millis();
+        wdt_reset();
       }
       if (millis() - timer < 5000) {
         return;
@@ -77,6 +78,7 @@ void gasSystemRunawayStateCheck(bool reset) {
         getsample2 = false;
         Serial.println(F("Got sample 2"));
         timer1 = millis();
+        wdt_reset();
       }
       if (millis() - timer1 < 5000) {
         return;
@@ -87,6 +89,7 @@ void gasSystemRunawayStateCheck(bool reset) {
         getsample3 = false;
         Serial.println(F("Got sample 3"));
         step = 1;
+        wdt_reset();
       }
       break;
     case 1:
@@ -102,11 +105,13 @@ void gasSystemRunawayStateCheck(bool reset) {
       Serial.print(F("This is the average sample = "));
       Serial.println(gassample_average);
       step = 2;
+      wdt_reset();
       break;
     case 2:
       Serial.print("step is now =");
       Serial.println(step);
       if (get_bed_oxygen_reading() < gassample_average - .3) {
+        wdt_reset();
         Serial.print("Gas moving in the right direction");
         checkGas = 0;
         step = 0;
@@ -127,6 +132,7 @@ void gasSystemRunawayStateCheck(bool reset) {
         checkGas++;
         Serial.print(F("Nothing changed increse gas by 1 new value = "));
         Serial.println(checkGas);
+        wdt_reset();
       }
       if (checkGas == 4) {
         // here set runaway lockout
