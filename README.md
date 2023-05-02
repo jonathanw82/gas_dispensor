@@ -47,7 +47,8 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 | Green status LED        | @ 5v 60 ma         |
 | RED status LED          | @ 5v 60 ma         |
 | AMBER status LED        | @ 5v 60 ma         |
-|                         |Total = 1,661.88    |
+| BLUE status LED         | @ 5v 60 ma         |
+|                         |Total = 1,662.48    |
 
 <br>
 ### Fig 2
@@ -98,6 +99,12 @@ calibrating the red sensor
 https://wiki.dfrobot.com/SKU_SEN0496_Gravity_Electrochemical_Oxygen_Sensor_0_100_I2C
 
 
+## refernce notes for each oxygen sensor
+
+Gravity: I2C Oxygen / O2 Sensor SEN0322 0~25%Vol [here](https://wiki.dfrobot.com/Gravity_I2C_Oxygen_Sensor_SKU_SEN0322)
+
+
+This full-scale oxygen / O2 sensor employs the original AO2 CiTiceL® oxygen sensor 0~100%Vol [here](https://wiki.dfrobot.com/SKU_SEN0496_Gravity_Electrochemical_Oxygen_Sensor_0_100_I2C)
 
 
 
