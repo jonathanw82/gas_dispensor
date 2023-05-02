@@ -10,7 +10,7 @@
 #include <WiFiNINA.h>
 #include <MQTT.h>
 #include <EEPROM.h>
-#include <LGcredentials.h>
+#include <credentials.h>
 
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
@@ -28,11 +28,13 @@ WiFiClient www_client;
 
 const uint8_t on = HIGH;
 const uint8_t off = LOW;
-float safe_oxygen_level = 0;
-float safe_oxygen_level_min = 19.5;
+float room_oxygen_level = 0;
+float room_oxygen_safe_level_min = 19.50;
 bool safety_lockout = false;
 bool runaway_lockout = false;
-float actual_oxygen_level = 0;
+unsigned long runaway_lockout_timer;
+unsigned long runaway_lockout_duration_ms = 60000;  // 5 mins
+float bed_oxygen_level = 0;
 float oxygen_target_level = 10;  // target for oxygen is 10%
 int time_period = 30;
 float gas_on_time = 0;
@@ -48,16 +50,17 @@ const uint8_t gas_safety_relay = 2;
 const uint8_t warning_beacon = 3;
 const uint8_t red_lockout_led = 4;
 const uint8_t abmer_solenoid_active_led = 5;
+const uint8_t blue_fault_led = 6;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre Oxygen sensor  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-DFRobot_EOxygenSensor_I2C oxygen(&Wire, 0x70);  // main sensor in the grow bed
+DFRobot_EOxygenSensor_I2C bed_oxygen_sensor(&Wire, 0x70);  // main sensor in the grow bed
 
 #define I2C_COMMUNICATION
-DFRobot_GAS_I2C safetyOxygenSensor(&Wire, 0x74);  // safety sensor to shut down output if the oxgen level in the room is unsafe
+DFRobot_GAS_I2C roomSafetyOxygenSensor(&Wire, 0x74);  // safety sensor to shut down output if the oxgen level in the room is unsafe
 
-// input, output, target,P,I,D
-PID gasPID(&actual_oxygen_level, &gas_output, &oxygen_target_level, 10, 0.2, 0);  // Decalre the PID classes
+// input, output, target, P, I, D
+PID gasPID(&bed_oxygen_level, &gas_output, &oxygen_target_level, 10, 0.2, 0);  // Decalre the PID classes
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Watchdog ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void watchdogSetup() {
@@ -66,7 +69,7 @@ void watchdogSetup() {
     Serial.println(F("It was a watchdog reset."));
   }
   RSTCTRL.RSTFR |= RSTCTRL_WDRF_bm;
-  wdt_enable(WDT_PERIOD_2KCLK_gc);
+  wdt_enable(WDT_PERIOD_4KCLK_gc);
 #endif
 }
 
@@ -89,90 +92,86 @@ void setup() {
   digitalWrite(red_lockout_led, off);
   pinMode(abmer_solenoid_active_led, OUTPUT);
   digitalWrite(abmer_solenoid_active_led, off);
-  //
-  //safetyOxygenSensor.begin();
-  //  while (!oxygen.begin()) {
-  //    Serial.println("NO Deivces !");
-  //    delay(1000);
-  //  } Serial.println("Device connected successfully !");
+  pinMode(blue_fault_led, OUTPUT);
+  digitalWrite(blue_fault_led, off);
 
-  safetyOxygenSensor.changeAcquireMode(safetyOxygenSensor.PASSIVITY);
+  while (!roomSafetyOxygenSensor.begin()) {
+    Serial.println("NO Deivces !");
+    delay(1000);
+  }
+  Serial.println("Room safety oxygen sensor connected successfully !");
+  while (!bed_oxygen_sensor.begin()) {
+    Serial.println("NO Deivces !");
+    delay(1000);
+  }
+  Serial.println("Bed oxygen sensor connected successfully !");
+  // if not connected in a timly mannor bring on the error light
+
+  roomSafetyOxygenSensor.changeAcquireMode(roomSafetyOxygenSensor.PASSIVITY);
   watchdogSetup();
 }
 
 void loop() {
   wdt_reset();
   maintain_mqtt_connection();
-  safetyCheck();
+  mqtt_client.loop();
+  roomOxygenLevelSafetyCheck();
 
-  if (gas_on_time == 100) {
-    gasSystemErrorCheck();
+  static unsigned long publish_timer;
+  if (millis() - publish_timer > 1000) {
+    publish_timer = millis();
+    publishMQTT();
   }
 
-  if (!safety_lockout) {
-    if (!runaway_lockout) {
-      check_time_values();
-      time_control_loop();
-      if (millis() - prev_Compute_time > pid_compute_interval) {  // Compute every 5 seconds
-        prev_Compute_time = millis();
-        get_oxygen_reading();
-        gasPID.Compute();
-        publishMQTT();
-      }
-    }
+  bool reset_runaway_state_machine = true;
+  if (gas_output == -100) {
+    reset_runaway_state_machine = false;
   }
+  gasSystemRunawayStateCheck(reset_runaway_state_machine);
 
   if (safety_lockout || runaway_lockout) {
-    publishLockoutState();
+    wdt_reset();
+    getRoomOxygenSample();
+    digitalWrite(gas_safety_relay, off);
+    digitalWrite(red_lockout_led, on);
+    digitalWrite(gas_output_solenoid, off);
+    digitalWrite(warning_beacon, on);
+    return;
   }
 
-  mqtt_client.loop();
+  check_time_values();
+  time_control_loop();
+  if (millis() - prev_Compute_time > pid_compute_interval) {  // Compute every 5 seconds
+    prev_Compute_time = millis();
+    get_bed_oxygen_reading();
+    gasPID.Compute();
+  }
 }
 
-void getSafeOxygenSample() {
+void getRoomOxygenSample() {
   static unsigned long timer = 0;
   if (millis() - timer < 2000) {
     return;
   }
-  //safe_oxygen_level = safetyOxygenSensor.readGasConcentrationPPM());
-  safe_oxygen_level = 19.60;
+  timer = millis();
+  wdt_reset();
+  room_oxygen_level = roomSafetyOxygenSensor.readGasConcentrationPPM();
+  wdt_reset();
 }
 
-void safetyCheck() {
-  static unsigned long timer = 0;
-  getSafeOxygenSample();
-  if (safe_oxygen_level <= safe_oxygen_level_min) {
+void roomOxygenLevelSafetyCheck() {
+  getRoomOxygenSample();
+  if (room_oxygen_level <= room_oxygen_safe_level_min) {
     safety_lockout = true;  // the system will have to phsically reset to start up again
-    digitalWrite(gas_safety_relay, off);
-    digitalWrite(red_lockout_led, on);
-  } else {
-    digitalWrite(gas_safety_relay, on);
-    digitalWrite(red_lockout_led, off);
+    return;
   }
-
-  if (safety_lockout) {
-    digitalWrite(gas_output_solenoid, off);
-    digitalWrite(gas_safety_relay, off);
-    digitalWrite(warning_beacon, on);
-    if (millis() - timer < 1000) {
-      return;
-    }
-    timer = millis();
-    Serial.print(F("Safe Oxygen level "));
-    //Serial.print(safetyOxygenSensor.readGasConcentrationPPM());
-    Serial.print(safe_oxygen_level);
-    Serial.println(F(" %vol"));
-    Serial.println(F("********* DANGER OXYGEN LEVEL LOW SAFETY SHUTDOWN *********"));
-  }
+  digitalWrite(gas_safety_relay, on);
+  digitalWrite(red_lockout_led, off);
 }
 
 
-void get_oxygen_reading() {
-  //  actual_oxygen_level = oxygen.readOxygenConcentration();
-  actual_oxygen_level = 20.22;
-  //  Serial.print("oxygen concetnration is ");
-  //  Serial.print(oxygen_value);
-  //  Serial.println("% VOL");
+float get_bed_oxygen_reading() {
+  return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Time values ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,6 +194,7 @@ void time_control_loop() {
   if (millis() - time_loop_start < (gas_on_time * 1000)) {
     if (gas_output > 0) {
       digitalWrite(gas_output_solenoid, off);
+      digitalWrite(abmer_solenoid_active_led, off);
     } else {
       activate_solenoid();  // increases nitrogen level
     }

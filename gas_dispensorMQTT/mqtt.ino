@@ -3,6 +3,7 @@ void setUpMqtt() {
   mqtt_client.onMessageAdvanced(mqtt_message);
 }
 
+//Gas_Dispenser/sub/bed-environment/owner=JON/R1/time_period
 char path[200];
 char* construct_path(char* endpoint){
   char subpath[200];
@@ -35,7 +36,6 @@ void maintain_mqtt_connection() {
   }
   Serial.println(F("success!"));
 
- 
   mqtt_client.subscribe(construct_path("reset"));
   mqtt_client.subscribe(construct_path("P"));
   mqtt_client.subscribe(construct_path("I"));

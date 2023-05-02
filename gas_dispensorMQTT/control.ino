@@ -16,8 +16,7 @@ int payloadCovertedToInt(char* payload, int payload_length) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ String comparason ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 char* str_return_command(char* topic) {
   /* 
-    Take the topic, find the last slash and return the word after it.
-    strrchr locate last occurrence of a character in string
+    Take the topic, find the last slash and return the word after it. strrchr locate last occurrence of a character in string
     "SS1/sub/Sensor_0" return Sensor_0;
   */
   char* find_the_slash = strrchr(topic, '/');
@@ -27,6 +26,7 @@ char* str_return_command(char* topic) {
 
 
 void control_commands(char* topic, char* payload, int payload_length) {
+  //Gas_Dispenser/sub/bed-environment/owner=JON/R1/time_period
 
   int array_index = 0;
 
