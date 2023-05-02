@@ -51,6 +51,7 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 |                         |Total = 1,662.48    |
 
 <br>
+
 ### Fig 2
 <div align="center">
    <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/wiring.jpg" alt="schymatic"/>
@@ -65,6 +66,12 @@ If ambient levels are within a safe range the O2 sensor in the grow bed root zon
 
 ### Fig 3
 <div align="center">
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/flowchart.jpg" alt="flowchart"/>
+ </div>
+<br>
+
+### Fig 4
+<div align="center">
    <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/timeperiod.jpg" alt="time"/>
  </div>
 <br>
@@ -75,9 +82,9 @@ For now let's say a period of 30 seconds this could be 10 seconds or whatever le
 
 Two 02 sensors are used, one in the root zone and another in the room. Unsafe oxygen levels are below 19.50% if this is detected the solenoid will be shut down to prevent any more nitrogen from being pumped into the environment a sounder and strobe will also activate. At this point, the only way for the system to start back up is to be physically reset by means of a power cycle by the operator.
 
-The operator will also ware a personal oxygen safety alarm Fig 4 so if the oxygen in the room does fall below 19.50% the alarm will sound alerting the operator of unsafe working conditions and to exit and vent the room immediately.
+The operator will also ware a personal oxygen safety alarm Fig 5 so if the oxygen in the room does fall below 19.50% the alarm will sound alerting the operator of unsafe working conditions and to exit and vent the room immediately.
 
-### Fig 4
+### Fig 5
 <div align="center">
    <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/crowcon-clip-sgd--o2jpg_1.jpg" alt="alarm"/>
  </div>
