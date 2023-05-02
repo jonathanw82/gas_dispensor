@@ -66,7 +66,7 @@ If ambient levels are within a safe range the O2 sensor in the grow bed root zon
 
 ### Fig 3
 <div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/flowchart.jpg" alt="flowchart"/>
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/flowchart2.jpg" alt="flowchart2"/>
  </div>
 <br>
 
