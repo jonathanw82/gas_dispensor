@@ -10,15 +10,15 @@
 #include <WiFiNINA.h>
 #include <MQTT.h>
 #include <EEPROM.h>
-#include <credentials.h>
+#include <LGcredentials.h>
 
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
 #define MQTT_HOST mqtt_host_name
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
 #define DEVICE_NAME "Gas_Dispenser"
-//#define PUBLISH_PATH "Gas_Dispenser/"
-char PUBLISH_PATH[30] = "sensor/bed-environment/";
+#define PUBLISH_PATH "Gas_Dispenser/"
+//char PUBLISH_PATH[30] = "sensor/bed-environment/";
 char MACADDRESS[18];  // 00:00:00:00:00:00
 char LOCATION[5] = "R1";
 char OWNER[10] = "owner=JON";
@@ -96,12 +96,12 @@ void setup() {
   digitalWrite(blue_fault_led, off);
 
   while (!roomSafetyOxygenSensor.begin()) {
-    Serial.println("NO Deivces !");
+    Serial.println("NO Room Sensor Deivces !");
     delay(1000);
   }
   Serial.println("Room safety oxygen sensor connected successfully !");
   while (!bed_oxygen_sensor.begin()) {
-    Serial.println("NO Deivces !");
+    Serial.println("NO bed sensor Deivces !");
     delay(1000);
   }
   Serial.println("Bed oxygen sensor connected successfully !");
@@ -118,7 +118,7 @@ void loop() {
   roomOxygenLevelSafetyCheck();
 
   static unsigned long publish_timer;
-  if (millis() - publish_timer > 1000) {
+  if (millis() - publish_timer > 5000) {
     publish_timer = millis();
     publishMQTT();
   }
