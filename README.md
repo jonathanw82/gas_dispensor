@@ -54,7 +54,7 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 
 ### Fig 2
 <div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/wiring.jpg" alt="schymatic"/>
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/newschymatic.jpg" alt="schymatic"/>
  </div>
 <br>
 
