@@ -10,7 +10,7 @@
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
 #define DEVICE_NAME "Gas_Dispenser"
 //#define PUBLISH_PATH "Gas_Dispenser/"
-char PUBLISH_PATH[30] = "sensor/bed-environment/";
+char PUBLISH_PATH[30] = "sensor/Gas_Dispenser/";
 char MACADDRESS[18];  // 00:00:00:00:00:00
 char LOCATION[5] = "R1";
 char OWNER[10] = "owner=JON";
@@ -18,8 +18,8 @@ int status = WL_IDLE_STATUS;
 MQTTClient mqtt_client;
 WiFiClient espClient;
 
-const uint8_t on = HIGH;
-const uint8_t off = LOW;
+const uint8_t on = LOW;
+const uint8_t off = HIGH;
 float room_oxygen_level = 0;
 float room_oxygen_safe_level_min = 19.50;
 bool safety_lockout = false;
@@ -74,6 +74,7 @@ void loop() {
 
 void getRoomOxygenSample() {
   static unsigned long timer = 0;
+
   if (millis() - timer < 2000) {
     return;
   }
@@ -87,9 +88,11 @@ void roomOxygenLevelSafetyCheck() {
     safety_lockout = true;  // the system will have to phsically reset to start up again
     return;
   }
-  digitalWrite(gas_safety_relay, on);
-  digitalWrite(red_lockout_led, off);
-  digitalWrite(warning_beacon, off);
+  if(!safety_lockout){
+    digitalWrite(gas_safety_relay, on);
+    digitalWrite(red_lockout_led, LOW);
+    digitalWrite(warning_beacon, off);
+  }
 }
 
 

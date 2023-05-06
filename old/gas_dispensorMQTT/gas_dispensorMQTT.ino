@@ -95,15 +95,15 @@ void setup() {
   pinMode(blue_fault_led, OUTPUT);
   digitalWrite(blue_fault_led, off);
 
-  while (!roomSafetyOxygenSensor.begin()) {
-    Serial.println("NO Room Sensor Deivces !");
-    delay(1000);
-  }
-  Serial.println("Room safety oxygen sensor connected successfully !");
-  while (!bed_oxygen_sensor.begin()) {
-    Serial.println("NO bed sensor Deivces !");
-    delay(1000);
-  }
+  // while (!roomSafetyOxygenSensor.begin()) {
+  //   Serial.println("NO Room Sensor Deivces !");
+  //   delay(1000);
+  // }
+  // Serial.println("Room safety oxygen sensor connected successfully !");
+  // while (!bed_oxygen_sensor.begin()) {
+  //   Serial.println("NO bed sensor Deivces !");
+  //   delay(1000);
+  // }
   Serial.println("Bed oxygen sensor connected successfully !");
   // if not connected in a timly mannor bring on the error light
 
@@ -155,7 +155,8 @@ void getRoomOxygenSample() {
   }
   timer = millis();
   wdt_reset();
-  room_oxygen_level = roomSafetyOxygenSensor.readGasConcentrationPPM();
+  // room_oxygen_level = roomSafetyOxygenSensor.readGasConcentrationPPM();
+  room_oxygen_level = 20.22;
   wdt_reset();
 }
 
@@ -171,7 +172,8 @@ void roomOxygenLevelSafetyCheck() {
 
 
 float get_bed_oxygen_reading() {
-  return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
+  // return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
+    return bed_oxygen_level = 20;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Time values ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

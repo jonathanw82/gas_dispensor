@@ -26,11 +26,11 @@ char* str_return_command(char* topic) {
 
 
 void control_commands(char* topic, char* payload, int payload_length) {
-  //Gas_Dispenser/sub/bed-environment/owner=JON/R1/time_period
+  //Gas_Dispenser/sub/bed-environment/owner=JON/R1/solenoid_on_time_sec
 
   int array_index = 10;
 
-  char* commands[7] = { "reset", "oxygen_target_level", "solenoid_pulse_interval_sec", "solenoid_cycles", "solenoid_holdoff_interval_sec"};
+  char* commands[7] = { "reset", "oxygen_target_level", "solenoid_on_time_sec", "solenoid_off_time_sec", "solenoid_cycles", "solenoid_holdoff_interval_sec" };
 
   for (int i = 0; i < 7; i++) {
     if (!strcmp(str_return_command(topic), commands[i])) {
@@ -44,23 +44,30 @@ void control_commands(char* topic, char* payload, int payload_length) {
     Serial.println(array_index);
     case 0:
       Serial.print(F("Reset here"));
-      delay(2500);
+      delay(4500);
       break;
     case 1:
       oxygen_target_level = payloadCovertedToFloat(payload, payload_length);
       EEPROM.put(0, oxygen_target_level);
       break;
     case 2:
-      solenoid_pulse_interval_sec = payloadCovertedToInt(payload, payload_length);
-      EEPROM.put(5, solenoid_pulse_interval_sec);
+      solenoid_on_time_sec = payloadCovertedToInt(payload, payload_length);
+      EEPROM.put(5, solenoid_on_time_sec);
       break;
     case 3:
-      solenoid_cycles = payloadCovertedToInt(payload, payload_length);
-      EEPROM.put(10, solenoid_cycles);
+      solenoid_off_time_sec = payloadCovertedToInt(payload, payload_length);
+      EEPROM.put(10, solenoid_off_time_sec);
       break;
     case 4:
+      solenoid_cycles = payloadCovertedToInt(payload, payload_length);
+      EEPROM.put(15, solenoid_cycles);
+      break;
+    case 5:
       solenoid_holdoff_interval_sec = payloadCovertedToInt(payload, payload_length);
-      EEPROM.put(10, solenoid_holdoff_interval_sec);
+      if(solenoid_holdoff_interval_sec < solenoid_on_time_sec){
+        solenoid_holdoff_interval_sec = solenoid_on_time_sec + 60;
+      }
+      EEPROM.put(20, solenoid_holdoff_interval_sec);
       break;
   }
 }
