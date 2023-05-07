@@ -30,7 +30,7 @@ void control_commands(char* topic, char* payload, int payload_length) {
 
   int array_index = 10;
 
-  char* commands[7] = { "reset", "oxygen_target_level", "solenoid_on_time_sec", "solenoid_off_time_sec", "solenoid_cycles", "solenoid_holdoff_interval_sec" };
+  char* commands[7] = { "reset", "oxygen_target_level", "solenoid_on_time_sec", "solenoid_off_time_sec", "solenoid_cycles", "dispense_paused_period_sec" };
 
   for (int i = 0; i < 7; i++) {
     if (!strcmp(str_return_command(topic), commands[i])) {
@@ -63,11 +63,11 @@ void control_commands(char* topic, char* payload, int payload_length) {
       EEPROM.put(15, solenoid_cycles);
       break;
     case 5:
-      solenoid_holdoff_interval_sec = payloadCovertedToInt(payload, payload_length);
-      if(solenoid_holdoff_interval_sec < solenoid_on_time_sec){
-        solenoid_holdoff_interval_sec = solenoid_on_time_sec + 60;
+      dispense_paused_period_sec = payloadCovertedToInt(payload, payload_length);
+      if(dispense_paused_period_sec < solenoid_on_time_sec){
+        dispense_paused_period_sec = solenoid_on_time_sec + 60;
       }
-      EEPROM.put(20, solenoid_holdoff_interval_sec);
+      EEPROM.put(20, dispense_paused_period_sec);
       break;
   }
 }

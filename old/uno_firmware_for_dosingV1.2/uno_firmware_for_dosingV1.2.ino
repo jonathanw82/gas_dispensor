@@ -13,8 +13,7 @@
 #define MQTT_HOST mqtt_host_name
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
 #define DEVICE_NAME "Gas_Dispenser"
-#define PUBLISH_PATH "test/Gas_Dispenser/"
-//char PUBLISH_PATH[30] = "sensor/Gas_Dispenser/bed/";
+char PUBLISH_PATH[40] = "sensor/Gas_Dispenser/";
 char MACADDRESS[18];  // 00:00:00:00:00:00
 char LOCATION[5] = "R1";
 char OWNER[10] = "owner=JON";
@@ -28,10 +27,10 @@ float bed_oxygen_level = 0;
 float oxygen_target_level = 10;               // target for oxygen is 10%
 unsigned long solenoid_on_time_sec = 1;
 unsigned long solenoid_off_time_sec = 42;
-uint16_t solenoid_holdoff_interval_sec = 10;  // time to allow the gas to settle bewtween cycles this is in seconds
+uint16_t dispense_paused_period_sec = 10;  // time to allow the gas to settle bewtween cycles this is in seconds
 uint16_t solenoid_cycles = 0;
 uint16_t mqtt_publish_interval_sec = 2;  // publish mqtt in seconds
-bool solenoid_holdoff_timer = false;
+bool solenoid_paused_timer = false;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre control pins  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,18 +110,18 @@ void activate_solenoid(bool reset) {
     digitalWrite(gas_output_solenoid, off);
     digitalWrite(abmer_solenoid_active_led, off);
     cycles = 0;
-    solenoid_holdoff_timer = false;
+    solenoid_paused_timer = false;
     solenoid_active = false;
     return;
   }
 
-  if (solenoid_holdoff_timer) {
+  if (solenoid_paused_timer) {
     // if true start waiting timer to allow gas to stablise.
-    if (millis() - timer < solenoid_holdoff_interval_sec * 1000) {
+    if (millis() - timer < dispense_paused_period_sec * 1000) {
       return;
     }
     timer = millis();
-    solenoid_holdoff_timer = false;
+    solenoid_paused_timer = false;
   }
 
    static unsigned long soltime = 0;
@@ -137,7 +136,7 @@ void activate_solenoid(bool reset) {
 
   if (cycles >= solenoid_cycles + 1) {
     cycles = 0;
-    solenoid_holdoff_timer = true;
+    solenoid_paused_timer = true;
     solenoid_active = false;
     digitalWrite(gas_output_solenoid, off);
     digitalWrite(abmer_solenoid_active_led, off);

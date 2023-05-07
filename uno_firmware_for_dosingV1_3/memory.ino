@@ -8,5 +8,5 @@ void get_EEprom() {
   EEPROM.get(5, solenoid_on_time_sec);
   EEPROM.get(10, solenoid_off_time_sec);
   EEPROM.get(15, solenoid_cycles);
-  EEPROM.get(20, solenoid_holdoff_interval_sec);
+  EEPROM.get(20, dispense_paused_period_sec);
 }

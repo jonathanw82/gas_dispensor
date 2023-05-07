@@ -8,10 +8,9 @@
 #define WIFI_PASSWORD wifipassword
 #define MQTT_HOST mqtt_host_name
 #define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
-#define DEVICE_NAME "Gas_Dispenser"
-//#define PUBLISH_PATH "Gas_Dispenser/"
-char PUBLISH_PATH[30] = "sensor/Gas_Dispenser/";
-char MACADDRESS[18];  // 00:00:00:00:00:00
+#define DEVICE_NAME "Room_oxygen_safety_level_sensor"
+char PUBLISH_PATH[40] = "sensor/Gas_Dispenser/";
+char MACADDRESS[20];  // 00:00:00:00:00:00
 char LOCATION[5] = "R1";
 char OWNER[10] = "owner=JON";
 int status = WL_IDLE_STATUS;
@@ -23,6 +22,7 @@ const uint8_t off = HIGH;
 float room_oxygen_level = 0;
 float room_oxygen_safe_level_min = 19.50;
 bool safety_lockout = false;
+bool sensor_fault = false;
 
 const uint8_t gas_safety_relay = D5;
 const uint8_t warning_beacon = D6;
@@ -74,12 +74,31 @@ void loop() {
 
 void getRoomOxygenSample() {
   static unsigned long timer = 0;
+  static uint8_t error_check = 0;
+  static uint8_t error_check_max = 8;
+  static float check_oxygen_reading = 0;
 
   if (millis() - timer < 2000) {
     return;
   }
   timer = millis();
-  room_oxygen_level = roomSafetyOxygenSensor.readGasConcentrationPPM();
+  check_oxygen_reading = roomSafetyOxygenSensor.readGasConcentrationPPM();
+
+  if (error_check == error_check_max) {
+    Serial.println("** Room safety oxygen sensor fault ! **");
+    safety_lockout = true;  // the system will have to phsically reset to start up again
+    sensor_fault = true;
+    return;
+  }
+
+  if (check_oxygen_reading == 0.0) {
+    error_check++;
+    Serial.print("error check = ");
+    Serial.println(error_check);
+  } else {
+    error_check = 0;
+    room_oxygen_level = check_oxygen_reading;
+  }
 }
 
 void roomOxygenLevelSafetyCheck() {
@@ -88,13 +107,12 @@ void roomOxygenLevelSafetyCheck() {
     safety_lockout = true;  // the system will have to phsically reset to start up again
     return;
   }
-  if(!safety_lockout){
+  if (!safety_lockout) {
     digitalWrite(gas_safety_relay, on);
     digitalWrite(red_lockout_led, LOW);
     digitalWrite(warning_beacon, off);
   }
 }
-
 
 void lockoutLed() {
   static unsigned long timer;
