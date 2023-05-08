@@ -11,7 +11,7 @@ As can be seen in Fig 1 on average breathable air is made up of oxygen 21%, nitr
 
 More information on the composition of air can be found [here.](https://en.wikipedia.org/wiki/Atmosphere_of_Earth)
 
-Therefore increasing the nitrogen level will decrease the oxygen level. Over a period of time, this can prove if aeroponics does indeed give the root zone more assess to oxygen and decrease the susceptibility to pythium.
+Therefore increasing the nitrogen level will decrease the oxygen level. Over the growth cycle of some crop this can prove if aeroponics does indeed give the root zone more assess to oxygen and decrease the susceptibility to pythium.
 
 ### Fig 1
 <div align="center">
@@ -22,24 +22,28 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 ## Hardware:
 
 * 1 x Arduino Uno wifi rev2
+* 1 x Wemos D1 Mini
 * 4 x 5v relays
 * 1 x 5v PSU
 * 1 x Gravity: Electrochemical Oxygen / O2 Sensor (0-100%Vol, I2C) [Here](https://www.dfrobot.com/product-2569.html) (Main 02 sensor) 
 * 1 x Gravity: O2 Sensor (Calibrated, I2C & UART) [Here](https://thepihut.com/products/gravity-o2-sensor-calibrated-i2c-uart?variant=41620114866371&currency=GBP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAjw586hBhBrEiwAQYEnHaFBwm7ZAKjgB-vlygECEoYnv8AqbQjYx805CCJuayE0CSrMo6SIVhoCAVIQAvD_BwE) (Safety sensor)
 * 1 x Project box
+* 5 x cable glands
 * 1 x Cyclinder of nitrogen
 * 1 x Bottle regulator with solenoid [Here](https://www.onestopgrowshop.co.uk/pro-leaf-co2-regulator.html)
 * 1 x Nitrogen Regulator [Here](https://www.welduk.com/nitrogen-regulator-p64)
 * 1 x 1/4 male to 3/8 female BSP adaptor [Here](https://www.air-compressorsdirect.co.uk/bsp-fittings/taper-1-4-male-to-3-8-female-bsp-adaptor)
 * 1 x Warning beacon
-* 3 x LED
+* 3 x LED's, Red, Green and Amber
 
 <br>
 
 | Component               | Consumption        |
 | :----------------       | :-----------       |
 | Arduino Uno Wifi Rev2   | @ 5v 93 ma         |
-| Quad relay              | @ 5v 80 ma         |
+| Weemos D1 mini          | @ 5v 70 ma         |
+| Twin relay              | @ 5v 40 ma         |
+| Single 30amp relay      | @ 5v 20 ma         |
 | Oxygen sensor SEN0465   | @ 5v < 5 ma        |
 | Oxygen sesnor AA428-210 | @ 5v < 6.5 ma      |
 | Warning Beacon          | @ 12v 300 ma       |
@@ -47,8 +51,7 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 | Green status LED        | @ 5v 60 ma         |
 | RED status LED          | @ 5v 60 ma         |
 | AMBER status LED        | @ 5v 60 ma         |
-| BLUE status LED         | @ 5v 60 ma         |
-|                         |Total = 1,662.48    |
+|                         |Total = 1,652.48    |
 
 <br>
 
@@ -59,9 +62,11 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over a p
 <br>
 
 ## Process:
-The safety sensor will read the ambient oxygen level in the room. to ascertain if the level of oxygen is within a safe range. Under normal atmospheric pressure conditions, a human normally inhales air that contains 20.9% oxygen, if this falls even by 1 or 2% then it starts to become more laborious and the environment turns hypoxic meaning that oxygen levels are low and could be harmful. [More here](#safety)
+The safety sensor will read the ambient oxygen level in the room to ascertain if the level of oxygen is within a safe range. Under normal atmospheric pressure conditions, a human normally inhales air that contains 20.9% oxygen, if this falls even by 1 or 2% then it starts to become more laborious and the environment turns hypoxic meaning that oxygen levels are low and could be harmful. [More here](#safety)
 
-If ambient levels are within a safe range the O2 sensor in the grow bed root zone will feed its oxygen data back to a PID algorithm, from here it will decide on the next course of action. For instance, if the oxygen level is higher than the set point, the controller will turn on the solenoid valve for a percentage of a time period, this allows the gases to pass up through the grow bed and reach the sensor. 
+If ambient levels are within a safe range the safety relay will engaiage allowing power throught the dosing relay to energise the solenoid. If 0.0 is reported by the room sensor this is classed as an error. A further 8 samples are taken if they all return 0.0 the error status is reported and the lockout is enguaged and the warning beacon will sound. If of course the during those 8 rwading a correct value is retured then the system will continue as normal.
+
+If all is well and the saftey relay is enguaged the bed level oxygen sensor will provide the level of oxygen in the root zone and the solenoid activated to the specified on off period, lets say 2 seconds on 4 seconds off with a 1 minute pause period to allow the gas to settle and not over shoot the set point. this is also helps to mitigate against the chance of the solenoid from freeing open.This process is repeated  to allow more nitrogen into the root zone to bring down the level to the required target. Once the target is met, the system will stop doseing and remain domant until more nitrogen is required and the process starts again. All the while the safety sensor is continuouly checking the oxygen level in the room to keep a safe enviroment.
 <br>
 
 ### Fig 3
@@ -69,14 +74,6 @@ If ambient levels are within a safe range the O2 sensor in the grow bed root zon
    <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/flowchart2.jpg" alt="flowchart2"/>
  </div>
 <br>
-
-### Fig 4
-<div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/timeperiod.jpg" alt="time"/>
- </div>
-<br>
-
-For now let's say a period of 30 seconds this could be 10 seconds or whatever length of time you want to tune the PID algorithm to, after the 30 seconds have elapsed it will turn on the solenoid again for a percentage of the time, depending on how far or close to the set point the oxygen level is the PID controller will adjust the percentage of time accordingly to attempt to reach the setpoint and maintain it without under or overshooting it.
 
 ## Safety:
 
