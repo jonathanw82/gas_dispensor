@@ -70,7 +70,7 @@ char* construct_mqtt_path(char* endpoint){
   strcpy(pubpath, subpath);
   return pubpath;
 }
-
+GetSet send_status(construct_mqtt_path("system_status"));
 GetSet send_bed_oxygen_level(construct_mqtt_path("bed_oxygen_level"));
 GetSet send_bed_oxygen_level_error_val(construct_mqtt_path("bed_oxygen_level_error_val"));
 GetSet send_oxygen_target_level(construct_mqtt_path("oxygen_target_level"));
@@ -87,6 +87,14 @@ void publishMQTT() {
 
   static float error_val = bed_oxygen_level - oxygen_target_level;
 
+  if(sensor_fault){
+    send_status.set_string("** Warning Bed Oxygen Sensor Error **", false);
+  }else if(gas_output_solenoid){
+    send_status.set_string("Solenoid Active", false);
+  }else{
+    send_status.set_string("Idle", false);
+  }
+
   send_bed_oxygen_level.set_float(bed_oxygen_level, false);
   send_bed_oxygen_level_error_val.set_float(error_val, false);
   send_oxygen_target_level.set_float(oxygen_target_level, true);
@@ -97,7 +105,6 @@ void publishMQTT() {
   send_current_solenoid_cycles.set_int(cycles, false);
   send_solenoid_active.set_bool(check_pin_state(gas_output_solenoid), false);
   send_solenoid_paused_timer_active.set_bool(solenoid_paused_timer, false);
-
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Output pin state ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

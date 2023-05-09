@@ -6,7 +6,7 @@
 #include <WiFiNINA.h>
 #include <MQTT.h>
 #include <EEPROM.h>
-#include <credentials.h>
+#include <LGcredentials.h>
 
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
@@ -24,14 +24,14 @@ WiFiClient www_client;
 const uint8_t on = HIGH;
 const uint8_t off = LOW;
 float bed_oxygen_level = 0;
-float oxygen_target_level = 10;               // target for oxygen is 10%
+float oxygen_target_level = 10;  // target for oxygen is 10%
 unsigned long solenoid_on_time_sec = 1;
 unsigned long solenoid_off_time_sec = 42;
 uint16_t dispense_paused_period_sec = 10;  // time to allow the gas to settle bewtween cycles this is in seconds
 uint16_t solenoid_cycles = 0;
-uint16_t mqtt_publish_interval_sec = 2;  // publish mqtt in seconds
 bool solenoid_paused_timer = false;
 uint16_t cycles = 0;
+bool sensor_fault = false;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre control pins  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,11 +61,11 @@ void setup() {
   pinMode(abmer_solenoid_active_led, OUTPUT);
   digitalWrite(abmer_solenoid_active_led, off);
 
-  // while (!bed_oxygen_sensor.begin()) {
-  //   Serial.println("NO Deivces !");
-  //   delay(1000);
-  // }
-  // Serial.println("Bed oxygen sensor connected successfully !");
+  while (!bed_oxygen_sensor.begin()) {
+    Serial.println("NO Deivces !");
+    delay(1000);
+  }
+  Serial.println("Bed oxygen sensor connected successfully !");
 
   watchdogSetup();
 }
@@ -76,26 +76,49 @@ void loop() {
   mqtt_client.loop();
   manage_oxygen_level();
   publishMQTT();
-  // static unsigned long publish_timer;
-  // if (millis() - publish_timer > mqtt_publish_interval_sec * 1000) {
-  //   publish_timer = millis();
-    
-  // }
 }
 
 float get_bed_oxygen_reading() {
-  // return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
-  return bed_oxygen_level = 20;
+  static unsigned long timer = 0;
+  static uint8_t error_check = 0;
+  static uint8_t error_check_max = 8;
+  static float check_oxygen_reading = 0;
+
+  if (millis() - timer < 2000) {
+    return;
+  }
+  timer = millis();
+  check_oxygen_reading = bed_oxygen_sensor.readOxygenConcentration();
+
+  if (error_check == error_check_max) {
+    Serial.println("** Bed oxygen sensor fault ! **");
+    sensor_fault = true;
+    digitalWrite(gas_output_solenoid, off);
+    digitalWrite(abmer_solenoid_active_led, off);
+    return;
+  }
+
+  if (check_oxygen_reading == 0.0) {
+    error_check++;
+    Serial.print("error check = ");
+    Serial.println(error_check);
+  } else {
+    error_check = 0;
+    bed_oxygen_level = check_oxygen_reading;
+  }
+  return bed_oxygen_level;
 }
 
 void manage_oxygen_level() {
   static const bool reset_activate_solenoid = true;
   static const bool allow_activate_solenoid = false;
 
-  if (get_bed_oxygen_reading() > oxygen_target_level) {
-    activate_solenoid(allow_activate_solenoid);  // actiavte solenoid
-  } else if (get_bed_oxygen_reading() <= oxygen_target_level) {
-    activate_solenoid(reset_activate_solenoid);  // sensd true to activate the reset loop and shut down the solenoid
+  if (!sensor_fault) {
+    if (get_bed_oxygen_reading() > oxygen_target_level) {
+      activate_solenoid(allow_activate_solenoid);  // actiavte solenoid
+    } else if (get_bed_oxygen_reading() <= oxygen_target_level) {
+      activate_solenoid(reset_activate_solenoid);  // sensd true to activate the reset loop and shut down the solenoid
+    }
   }
 }
 
@@ -124,13 +147,13 @@ void activate_solenoid(bool reset) {
     solenoid_paused_timer = false;
   }
 
-   static unsigned long soltime = 0;
+  static unsigned long soltime = 0;
   if (millis() - soltime >= (solenoid_active ? solenoid_on_time_sec * 1000 : solenoid_off_time_sec * 1000)) {
     soltime = millis();
     solenoid_active = !solenoid_active;
     digitalWrite(gas_output_solenoid, !digitalRead(gas_output_solenoid));  // pulse the gas_output solenoid to avoid freezing
     digitalWrite(abmer_solenoid_active_led, !digitalRead(abmer_solenoid_active_led));
-    if (digitalRead(gas_output_solenoid)) Serial.println("Solenoid on"), cycles++, Serial.print("cycle = "),Serial.println(cycles);;
+    if (digitalRead(gas_output_solenoid)) Serial.println("Solenoid on"), cycles++, Serial.print("cycle = "), Serial.println(cycles);
     if (!digitalRead(gas_output_solenoid)) Serial.println("Solenoid off");
   }
 

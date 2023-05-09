@@ -60,8 +60,8 @@ char* construct_mqtt_path(char* endpoint){
   return pubpath;
 }
 
-GetSet send_room_oxygen_level(construct_mqtt_path("room_oxygen_level"));
 GetSet send_status(construct_mqtt_path("system_status"));
+GetSet send_room_oxygen_level(construct_mqtt_path("room_oxygen_level"));
 GetSet send_room_oxygen_safe_level_min(construct_mqtt_path("room_oxygen_safe_level_min"));
 GetSet send_safety_lockout(construct_mqtt_path("safety_lockout"));
 
