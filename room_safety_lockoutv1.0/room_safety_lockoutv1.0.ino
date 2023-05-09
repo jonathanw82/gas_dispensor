@@ -2,7 +2,7 @@
 #include <DFRobot_MultiGasSensor.h>
 #include <MQTT.h>
 #include <OneWire.h>
-#include <credentials.h>
+#include <LGcredentials.h>
 
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
