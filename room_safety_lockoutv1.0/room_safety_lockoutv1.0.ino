@@ -2,7 +2,7 @@
 #include <DFRobot_MultiGasSensor.h>
 #include <MQTT.h>
 #include <OneWire.h>
-#include <LGcredentials.h>
+#include <credentials.h>
 
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
@@ -31,8 +31,6 @@ const uint8_t red_lockout_led = D7;
 
 #define I2C_COMMUNICATION
 DFRobot_GAS_I2C roomSafetyOxygenSensor(&Wire, 0x74);  // safety sensor to shut down output if the oxgen level in the room is unsafe
-
-void (*resetFunc)(void) = 0;
 
 void setup() {
   Serial.begin(9600);
