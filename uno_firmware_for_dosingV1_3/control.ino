@@ -64,9 +64,6 @@ void control_commands(char* topic, char* payload, int payload_length) {
       break;
     case 5:
       dispense_paused_period_sec = payloadCovertedToInt(payload, payload_length);
-      if(dispense_paused_period_sec < solenoid_on_time_sec){
-        dispense_paused_period_sec = solenoid_on_time_sec + 60;
-      }
       EEPROM.put(20, dispense_paused_period_sec);
       break;
   }

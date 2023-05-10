@@ -6,7 +6,7 @@
 #include <WiFiNINA.h>
 #include <MQTT.h>
 #include <EEPROM.h>
-#include <credentials.h>
+#include <LGcredentials.h>
 
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
@@ -60,11 +60,11 @@ void setup() {
   pinMode(abmer_solenoid_active_led, OUTPUT);
   digitalWrite(abmer_solenoid_active_led, off);
 
-  // while (!bed_oxygen_sensor.begin()) {
-  //   Serial.println("NO Deivces !");
-  //   delay(1000);
-  // }
-  // Serial.println("Bed oxygen sensor connected successfully !");
+  while (!bed_oxygen_sensor.begin()) {
+    Serial.println("NO Deivces !");
+    delay(1000);
+  }
+  Serial.println("Bed oxygen sensor connected successfully !");
 
   watchdogSetup();
 }
@@ -83,8 +83,8 @@ void loop() {
 }
 
 float get_bed_oxygen_reading() {
-  // return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
-  return bed_oxygen_level = 20;
+   return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
+  //return bed_oxygen_level = 20;
 }
 
 void manage_oxygen_level() {

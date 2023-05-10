@@ -88,6 +88,10 @@ The operator will also ware a personal oxygen safety alarm Fig 5 so if the oxyge
 
 <br>
 
+## Control commands
+
+* gas_dispenser/sub/owner=JON/location=r1/reset
+
 ## Notes:
 
 <hr>

@@ -11,12 +11,12 @@
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
 #define MQTT_HOST mqtt_host_name
-#define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
-#define DEVICE_NAME "Gas_Dispenser"
-char PUBLISH_PATH[40] = "sensor/Gas_Dispenser/";
+#define SUBSCRIBE_PATH "gas_dispenser/sub/"
+#define DEVICE_NAME "gas_dispenser"
+char PUBLISH_PATH[40] = "sensor/gas_dispenser/";
 char MACADDRESS[18];  // 00:00:00:00:00:00
-char LOCATION[5] = "R1";
-char OWNER[10] = "owner=JON";
+char LOCATION[15] = "location=r1";
+char OWNER[15] = "owner=JON";
 int status = WL_IDLE_STATUS;
 MQTTClient mqtt_client;
 WiFiClient www_client;
@@ -89,6 +89,7 @@ float get_bed_oxygen_reading() {
   }
   timer = millis();
   check_oxygen_reading = bed_oxygen_sensor.readOxygenConcentration();
+  //return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
 
   if (error_check == error_check_max) {
     Serial.println("** Bed oxygen sensor fault ! **");
@@ -114,9 +115,10 @@ void manage_oxygen_level() {
   static const bool allow_activate_solenoid = false;
 
   if (!sensor_fault) {
-    if (get_bed_oxygen_reading() > oxygen_target_level) {
+    if (get_bed_oxygen_reading() >= oxygen_target_level) {
       activate_solenoid(allow_activate_solenoid);  // actiavte solenoid
-    } else if (get_bed_oxygen_reading() <= oxygen_target_level) {
+    } else{
+      Serial.println("wea have reset the solenoid");
       activate_solenoid(reset_activate_solenoid);  // sensd true to activate the reset loop and shut down the solenoid
     }
   }
@@ -126,7 +128,6 @@ void activate_solenoid(bool reset) {
   static unsigned long timer = 0;
   static unsigned long solenoid_wait_timer = 0;
   static bool solenoid_active = false;
-
 
   if (reset) {
     // if true set all things off
@@ -153,7 +154,15 @@ void activate_solenoid(bool reset) {
     solenoid_active = !solenoid_active;
     digitalWrite(gas_output_solenoid, !digitalRead(gas_output_solenoid));  // pulse the gas_output solenoid to avoid freezing
     digitalWrite(abmer_solenoid_active_led, !digitalRead(abmer_solenoid_active_led));
-    if (digitalRead(gas_output_solenoid)) Serial.println("Solenoid on"), cycles++, Serial.print("cycle = "), Serial.println(cycles);
+
+    if (digitalRead(gas_output_solenoid)) {
+      Serial.println("Solenoid on");
+      cycles++;
+      Serial.print("cycle = ");
+      Serial.println(cycles);
+      Serial.print("Solenoid = ");
+      Serial.println(solenoid_active);
+    }
     if (!digitalRead(gas_output_solenoid)) Serial.println("Solenoid off");
   }
 

@@ -7,12 +7,12 @@
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
 #define MQTT_HOST mqtt_host_name
-#define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
+#define SUBSCRIBE_PATH "gas_dispenser/sub/"
 #define DEVICE_NAME "Room_oxygen_safety_level_sensor"
-char PUBLISH_PATH[40] = "sensor/Gas_Dispenser/";
+char PUBLISH_PATH[40] = "sensor/gas_dispenser/";
 char MACADDRESS[20];  // 00:00:00:00:00:00
-char LOCATION[5] = "R1";
-char OWNER[10] = "owner=JON";
+char LOCATION[15] = "location=r1";
+char OWNER[15] = "owner=JON";
 int status = WL_IDLE_STATUS;
 MQTTClient mqtt_client;
 WiFiClient espClient;
