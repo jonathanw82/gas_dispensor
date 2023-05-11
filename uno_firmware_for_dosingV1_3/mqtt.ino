@@ -2,12 +2,8 @@ void setUpMqtt() {
   mqtt_client.begin(MQTT_HOST, 1883, www_client);
   mqtt_client.onMessageAdvanced(mqtt_message);
   mqtt_client.setTimeout(4000);
-  mqtt_client.setKeepAlive(10);
+  mqtt_client.setKeepAlive(120);
 }
-
-// void mqtt_send_error()){
-
-// }
 
 //Gas_Dispenser/sub/owner=JON/R1/time_period
 char path[200];

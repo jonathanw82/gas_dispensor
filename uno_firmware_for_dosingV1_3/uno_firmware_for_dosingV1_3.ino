@@ -108,7 +108,7 @@ float get_bed_oxygen_reading() {
     return;
   }
    wdt_reset();
-  if (check_oxygen_reading == 0.0) {
+  if (check_oxygen_reading == 0.0 || check_oxygen_reading == 100) {
     error_check++;
     Serial.print("error check = ");
     Serial.println(error_check);

@@ -23,6 +23,7 @@ bool wifi() {
       Serial.println(F("Wifi Not connected"));
       if (isWifiConnectedCounter >= 5) {
         Serial.println(F("Wifi Not connected check connection"));
+        isWifiConnectedCounter = 0;
         return false;
       }
     } else {
@@ -31,6 +32,7 @@ bool wifi() {
       byte mac[6];
       WiFi.macAddress(mac);
       getMacAddress(mac);
+      isWifiConnectedCounter = 0;
       return true;
     }
   }
