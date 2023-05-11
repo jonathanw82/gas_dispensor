@@ -21,7 +21,7 @@ bool wifi() {
     if (status != WL_CONNECTED) {
       isWifiConnectedCounter++;
       Serial.println(F("Wifi Not connected"));
-      if (isWifiConnectedCounter == 2) {
+      if (isWifiConnectedCounter >= 5) {
         Serial.println(F("Wifi Not connected check connection"));
         return false;
       }

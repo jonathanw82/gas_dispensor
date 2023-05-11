@@ -1,7 +1,13 @@
 void setUpMqtt() {
   mqtt_client.begin(MQTT_HOST, 1883, www_client);
   mqtt_client.onMessageAdvanced(mqtt_message);
+  mqtt_client.setTimeout(4000);
+  mqtt_client.setKeepAlive(10);
 }
+
+// void mqtt_send_error()){
+
+// }
 
 //Gas_Dispenser/sub/owner=JON/R1/time_period
 char path[200];
@@ -32,16 +38,17 @@ void maintain_mqtt_connection() {
   Serial.print(F("\" ... "));
   if (!mqtt_client.connect(DEVICE_NAME)) {
     Serial.println(F(" connection failed."));
+    Serial.println(WiFi.status());
     return;
   }
   Serial.println(F("success!"));
-
+  wdt_reset();
   mqtt_client.subscribe(construct_path("reset"));
   mqtt_client.subscribe(construct_path("oxygen_target_level"));
   mqtt_client.subscribe(construct_path("solenoid_on_time_sec"));
   mqtt_client.subscribe(construct_path("solenoid_off_time_sec"));
   mqtt_client.subscribe(construct_path("solenoid_cycles"));
-  mqtt_client.subscribe(construct_path("solenoid_holdoff_interval_sec"));
+  mqtt_client.subscribe(construct_path("dispense_paused_period_sec"));
 }
 
 void mqtt_message(MQTTClient * client, char topic[], char payload[], int payload_length) {

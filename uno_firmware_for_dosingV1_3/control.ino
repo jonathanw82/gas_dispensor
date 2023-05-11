@@ -44,7 +44,7 @@ void control_commands(char* topic, char* payload, int payload_length) {
     Serial.println(array_index);
     case 0:
       Serial.print(F("Reset here"));
-      delay(4500);
+      delay(8500);
       break;
     case 1:
       oxygen_target_level = payloadCovertedToFloat(payload, payload_length);

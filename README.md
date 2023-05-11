@@ -90,7 +90,21 @@ The operator will also ware a personal oxygen safety alarm Fig 5 so if the oxyge
 
 ## Control commands
 
+sensding this command resets both arduinos.
 * gas_dispenser/sub/owner=JON/location=r1/reset
+
+The oxygen target level can be adjusted by sending a number to this command.
+* gas_dispenser/sub/owner=JON/location=r1/oxygen_target_level
+
+The solenoid on time can be adjusted by sending a number in seconds.
+* gas_dispenser/sub/owner=JON/location=r1/solenoid_on_time_sec
+
+The solenoid off time can be adjusted by sending a number in seconds.
+* gas_dispenser/sub/owner=JON/location=r1/solenoid_off_time_sec
+
+
+* gas_dispenser/sub/owner=JON/location=r1/solenoid_cycles
+* gas_dispenser/sub/owner=JON/location=r1/dispense_paused_period_sec
 
 ## Notes:
 

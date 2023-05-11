@@ -47,7 +47,7 @@ void watchdogSetup() {
     Serial.println(F("It was a watchdog reset."));
   }
   RSTCTRL.RSTFR |= RSTCTRL_WDRF_bm;
-  wdt_enable(WDT_PERIOD_4KCLK_gc);
+  wdt_enable(WDT_PERIOD_8KCLK_gc);
 #endif
 }
 
@@ -71,11 +71,21 @@ void setup() {
 }
 
 void loop() {
+  unsigned long start = millis();
   wdt_reset();
   maintain_mqtt_connection();
   mqtt_client.loop();
   manage_oxygen_level();
   publishMQTT();
+  unsigned long finish = millis();
+  static unsigned long longnumber = 0;
+
+ if(finish - start > longnumber){
+   longnumber = finish - start;
+    Serial.print("longest loop = ");
+    Serial.println(longnumber);
+ }
+  
 }
 
 float get_bed_oxygen_reading() {
@@ -89,7 +99,6 @@ float get_bed_oxygen_reading() {
   }
   timer = millis();
   check_oxygen_reading = bed_oxygen_sensor.readOxygenConcentration();
-  //return bed_oxygen_level = bed_oxygen_sensor.readOxygenConcentration();
 
   if (error_check == error_check_max) {
     Serial.println("** Bed oxygen sensor fault ! **");
@@ -98,7 +107,7 @@ float get_bed_oxygen_reading() {
     digitalWrite(abmer_solenoid_active_led, off);
     return;
   }
-
+   wdt_reset();
   if (check_oxygen_reading == 0.0) {
     error_check++;
     Serial.print("error check = ");

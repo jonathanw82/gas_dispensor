@@ -1,6 +1,8 @@
 void setUpMqtt() {
   mqtt_client.begin(MQTT_HOST, 1883, espClient);
   mqtt_client.onMessageAdvanced(mqtt_message);
+  mqtt_client.setTimeout(2000);
+  mqtt_client.setKeepAlive(10);
 }
 
 //Gas_Dispenser/sub/owner=JON/R1/reset
