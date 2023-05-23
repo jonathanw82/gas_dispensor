@@ -51,7 +51,10 @@ void setup() {
 }
 
 void loop() {
-  maintain_mqtt_connection();
+  maintain_wifi_connection();
+  if(WiFi.status() == WL_CONNECTED){
+    maintain_mqtt_connection();
+  }
   mqtt_client.loop();
   roomOxygenLevelSafetyCheck();
   publishMQTT();

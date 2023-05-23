@@ -32,6 +32,8 @@ uint16_t solenoid_cycles = 0;
 bool solenoid_paused_timer = false;
 uint16_t cycles = 0;
 bool sensor_fault = false;
+const bool reset_activate_solenoid = true;
+const bool allow_activate_solenoid = false;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre control pins  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,14 +68,16 @@ void setup() {
     delay(1000);
   }
   Serial.println("Bed oxygen sensor connected successfully !");
-
   watchdogSetup();
 }
 
 void loop() {
   unsigned long start = millis();
   wdt_reset();
-  maintain_mqtt_connection();
+  maintain_wifi_connection();
+  if(WiFi.status() == WL_CONNECTED){
+    maintain_mqtt_connection();
+  }
   mqtt_client.loop();
   manage_oxygen_level();
   publishMQTT();
@@ -85,7 +89,6 @@ void loop() {
     Serial.print("longest loop = ");
     Serial.println(longnumber);
  }
-  
 }
 
 float get_bed_oxygen_reading() {
@@ -108,7 +111,7 @@ float get_bed_oxygen_reading() {
     return;
   }
    wdt_reset();
-  if (check_oxygen_reading == 0.0 || check_oxygen_reading == 100) {
+  if (check_oxygen_reading == 0.0 || check_oxygen_reading > 25.00) {
     error_check++;
     Serial.print("error check = ");
     Serial.println(error_check);
@@ -120,14 +123,12 @@ float get_bed_oxygen_reading() {
 }
 
 void manage_oxygen_level() {
-  static const bool reset_activate_solenoid = true;
-  static const bool allow_activate_solenoid = false;
 
   if (!sensor_fault) {
     if (get_bed_oxygen_reading() >= oxygen_target_level) {
       activate_solenoid(allow_activate_solenoid);  // actiavte solenoid
     } else{
-      Serial.println("wea have reset the solenoid");
+      Serial.println("we have reset the solenoid");
       activate_solenoid(reset_activate_solenoid);  // sensd true to activate the reset loop and shut down the solenoid
     }
   }

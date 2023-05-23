@@ -51,7 +51,7 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over the
 | Green status LED        | @ 5v 60 ma         |
 | RED status LED          | @ 5v 60 ma         |
 | AMBER status LED        | @ 5v 60 ma         |
-|                         |Total = 1,652.48    |
+|                         |Total = 1,652.48 amp   |
 
 <br>
 
@@ -64,14 +64,20 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over the
 ## Process:
 The safety sensor will read the ambient oxygen level in the room to ascertain if the level of oxygen is within a safe range. Under normal atmospheric pressure conditions, a human normally inhales air that contains 20.9% oxygen, if this falls even by 1 or 2% then it starts to become more laborious and the environment turns hypoxic meaning that oxygen levels are low and could be harmful. [More here](#safety)
 
-If ambient levels are within a safe range the safety relay will engaiage allowing power throught the dosing relay to energise the solenoid. If 0.0 is reported by the room sensor this is classed as an error. A further 8 samples are taken if they all return 0.0 the error status is reported and the lockout is enguaged and the warning beacon will sound. If of course the during those 8 rwading a correct value is retured then the system will continue as normal.
+If ambient levels are within a safe range the safety relay will energise allowing power throught the dosing relay to energise the solenoid. If 0.0 is reported by the room sensor this is classed as an error. A further 8 samples are taken if they all return 0.0 the error status is reported and the lockout is enguaged and the warning beacon will sound. If during those 8 readings a correct value is retured then the system will continue as normal.
 
-If all is well and the saftey relay is enguaged the bed level oxygen sensor will provide the level of oxygen in the root zone and the solenoid activated to the specified on off period, lets say 2 seconds on 4 seconds off with a 1 minute pause period to allow the gas to settle and not over shoot the set point. this is also helps to mitigate against the chance of the solenoid from freeing open.This process is repeated  to allow more nitrogen into the root zone to bring down the level to the required target. Once the target is met, the system will stop doseing and remain domant until more nitrogen is required and the process starts again. All the while the safety sensor is continuouly checking the oxygen level in the room to keep a safe enviroment.
+If all is well and the saftey relay is enguaged the bed level oxygen sensor will provide the level of oxygen in the root zone and the dosing solenoid will activate to the specified on off period, lets say 2 seconds on 4 seconds off with a 1 minute pause period to allow the gas to settle and not over shoot the set point. This is also helps to mitigate against the chance of the solenoid from freeing open. This process is repeated to allow more nitrogen into the root zone to bring down the level to the required target. Once the target is met, the system will stop doseing and remain domant until more nitrogen is required and the process starts again. All the while the safety sensor is continuouly checking the oxygen level in the room to keep a safe enviroment.
 <br>
 
 ### Fig 3
 <div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/flowchart2.jpg" alt="flowchart2"/>
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/Flowdiagram3.jpg" alt="flowchart3"/>
+ </div>
+<br>
+
+### Fig 4
+<div align="center">
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/pulse sequence.jpg" alt="pulse sequence"/>
  </div>
 <br>
 
@@ -102,8 +108,10 @@ The solenoid on time can be adjusted by sending a number in seconds.
 The solenoid off time can be adjusted by sending a number in seconds.
 * gas_dispenser/sub/owner=JON/location=r1/solenoid_off_time_sec
 
-
+The solenoid cycles can be adjusted by sending a number.
 * gas_dispenser/sub/owner=JON/location=r1/solenoid_cycles
+
+The solenoid off time can be adjusted by sending a number in seconds.
 * gas_dispenser/sub/owner=JON/location=r1/dispense_paused_period_sec
 
 ## Notes:
