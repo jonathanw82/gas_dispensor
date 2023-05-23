@@ -28,13 +28,16 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over the
 * 1 x Gravity: Electrochemical Oxygen / O2 Sensor (0-100%Vol, I2C) [Here](https://www.dfrobot.com/product-2569.html) (Main 02 sensor) 
 * 1 x Gravity: O2 Sensor (Calibrated, I2C & UART) [Here](https://thepihut.com/products/gravity-o2-sensor-calibrated-i2c-uart?variant=41620114866371&currency=GBP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAjw586hBhBrEiwAQYEnHaFBwm7ZAKjgB-vlygECEoYnv8AqbQjYx805CCJuayE0CSrMo6SIVhoCAVIQAvD_BwE) (Safety sensor)
 * 1 x Project box
-* 5 x cable glands
+* 5 x Cable glands
 * 1 x Cyclinder of nitrogen
 * 1 x Bottle regulator with solenoid [Here](https://www.onestopgrowshop.co.uk/pro-leaf-co2-regulator.html)
 * 1 x Nitrogen Regulator [Here](https://www.welduk.com/nitrogen-regulator-p64)
 * 1 x 1/4 male to 3/8 female BSP adaptor [Here](https://www.air-compressorsdirect.co.uk/bsp-fittings/taper-1-4-male-to-3-8-female-bsp-adaptor)
 * 1 x Warning beacon
 * 3 x LED's, Red, Green and Amber
+* 1 x 4amp 240v MCB
+* 1 x 240v to 12v and 5.5v power supply
+* 1 x Short piece of din rail 
 
 <br>
 
@@ -49,9 +52,9 @@ Therefore increasing the nitrogen level will decrease the oxygen level. Over the
 | Warning Beacon          | @ 12v 300 ma       |
 | Gas Solenoid            | @ 240v 1 amp       |
 | Green status LED        | @ 5v 60 ma         |
-| RED status LED          | @ 5v 60 ma         |
-| AMBER status LED        | @ 5v 60 ma         |
-|                         |Total = 1,652.48 amp   |
+| Red status LED          | @ 5v 60 ma         |
+| Amber status LED        | @ 5v 60 ma         |
+|                         |Total = 1,652.48 amp|
 
 <br>
 
@@ -67,36 +70,21 @@ The safety sensor will read the ambient oxygen level in the room to ascertain if
 If ambient levels are within a safe range the safety relay will energise allowing power throught the dosing relay to energise the solenoid. If 0.0 is reported by the room sensor this is classed as an error. A further 8 samples are taken if they all return 0.0 the error status is reported and the lockout is enguaged and the warning beacon will sound. If during those 8 readings a correct value is retured then the system will continue as normal.
 
 If all is well and the saftey relay is enguaged the bed level oxygen sensor will provide the level of oxygen in the root zone and the dosing solenoid will activate to the specified on off period, lets say 2 seconds on 4 seconds off with a 1 minute pause period to allow the gas to settle and not over shoot the set point. This is also helps to mitigate against the chance of the solenoid from freeing open. This process is repeated to allow more nitrogen into the root zone to bring down the level to the required target. Once the target is met, the system will stop doseing and remain domant until more nitrogen is required and the process starts again. All the while the safety sensor is continuouly checking the oxygen level in the room to keep a safe enviroment.
-<br>
+
+All the data collected is sent to influxDB for use later, live monitoring can be seen by using mqtt explorer.
 
 ### Fig 3
 <div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/Flowdiagram3.jpg" alt="flowchart3"/>
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/mqtt.png" alt="mqtt"/>
  </div>
 <br>
 
-### Fig 4
-<div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/pulse sequence.jpg" alt="pulse sequence"/>
- </div>
-<br>
 
-## Safety:
+## Control commands:
+Commands can be sent via mqtt to change certain set points or activate resets.
 
-Two 02 sensors are used, one in the root zone and another in the room. Unsafe oxygen levels are below 19.50% if this is detected the solenoid will be shut down to prevent any more nitrogen from being pumped into the environment a sounder and strobe will also activate. At this point, the only way for the system to start back up is to be physically reset by means of a power cycle by the operator.
 
-The operator will also ware a personal oxygen safety alarm Fig 5 so if the oxygen in the room does fall below 19.50% the alarm will sound alerting the operator of unsafe working conditions and to exit and vent the room immediately.
-
-### Fig 5
-<div align="center">
-   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/crowcon-clip-sgd--o2jpg_1.jpg" alt="alarm"/>
- </div>
-
-<br>
-
-## Control commands
-
-sensding this command resets both arduinos.
+Sensding this command resets both arduinos.
 * gas_dispenser/sub/owner=JON/location=r1/reset
 
 The oxygen target level can be adjusted by sending a number to this command.
@@ -113,6 +101,35 @@ The solenoid cycles can be adjusted by sending a number.
 
 The solenoid off time can be adjusted by sending a number in seconds.
 * gas_dispenser/sub/owner=JON/location=r1/dispense_paused_period_sec
+
+<br>
+
+### Fig 4
+<div align="center">
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/Flowdiagram3.jpg" alt="flowchart3"/>
+ </div>
+<br>
+
+### Fig 5
+<div align="center">
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/pulse sequence.jpg" alt="pulse sequence"/>
+ </div>
+<br>
+
+## Safety:
+
+Two 02 sensors are used, one in the root zone and another in the room. Unsafe oxygen levels are below 19.50% if this is detected the solenoid will be shut down to prevent any more nitrogen from being pumped into the environment a sounder and strobe will also activate. At this point, the only way for the system to start back up is to be physically reset by means of a power cycle by the operator.
+
+The operator will also ware a personal oxygen safety alarm Fig 6 so if the oxygen in the room does fall below 19.50% the alarm will sound alerting the operator of unsafe working conditions and to exit and vent the room immediately.
+
+### Fig 6
+<div align="center">
+   <img src="https://github.com/jonathanw82/gas_dispensor/blob/main/media/crowcon-clip-sgd--o2jpg_1.jpg" alt="alarm"/>
+ </div>
+
+<br>
+
+
 
 ## Notes:
 
