@@ -105,7 +105,7 @@ https://wiki.dfrobot.com/SKU_SEN0496_Gravity_Electrochemical_Oxygen_Sensor_0_100
 
 ## refernce notes for each oxygen sensor
 
-Gravity: I2C Oxygen / O2 Sensor SEN0322 0~25%Vol [here](https://wiki.dfrobot.com/Gravity_I2C_Oxygen_Sensor_SKU_SEN0322)
+Gravity: I2C Oxygen / O2 Sensor SEN0322 0~25%Vol [here]()
 
 
 This full-scale oxygen / O2 sensor employs the original AO2 CiTiceL® oxygen sensor 0~100%Vol [here](https://wiki.dfrobot.com/SKU_SEN0496_Gravity_Electrochemical_Oxygen_Sensor_0_100_I2C)
