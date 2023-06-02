@@ -64,47 +64,46 @@ char* construct_mqtt_path(char* endpoint){
   strcat(subpath, "/");
   strcat(subpath, LOCATION);
   strcat(subpath, "/");
-  strcat(subpath, "bed_status");
+  strcat(subpath, "device=bed_status");
   strcat(subpath, "/");
   strcat(subpath, endpoint);
   strcpy(pubpath, subpath);
   return pubpath;
 }
-GetSet send_status(construct_mqtt_path("system_status"));
+
 GetSet send_bed_oxygen_level(construct_mqtt_path("bed_oxygen_level"));
 GetSet send_bed_oxygen_level_error_val(construct_mqtt_path("bed_oxygen_level_error_val"));
 GetSet send_oxygen_target_level(construct_mqtt_path("oxygen_target_level"));
 GetSet send_solenoid_on_time_sec(construct_mqtt_path("solenoid_on_time_sec"));
 GetSet send_solenoid_off_time_sec(construct_mqtt_path("solenoid_off_time_sec"));
+ wdt_reset();
 GetSet send_dispense_paused_period_sec(construct_mqtt_path("dispense_paused_period_sec"));
 GetSet send_solenoid_cycles(construct_mqtt_path("solenoid_cycles"));
 GetSet send_current_solenoid_cycles(construct_mqtt_path("current_solenoid_cycles"));
 GetSet send_solenoid_active(construct_mqtt_path("solenoid_active"));
 GetSet send_solenoid_paused_timer_active(construct_mqtt_path("solenoid_paused_timer_active"));
+GetSet send_sensor_error(construct_mqtt_path("bed_sensor_error"));
 
 
 void publishMQTT() {
 
-  static float error_val = bed_oxygen_level - oxygen_target_level;
-
-  if(sensor_fault){
-    send_status.set_string("** Warning Bed Oxygen Sensor Error **", false);
-  }else if(gas_output_solenoid){
-    send_status.set_string("Solenoid Active", false);
-  }else{
-    send_status.set_string("Idle", false);
-  }
+  float error_val = bed_oxygen_level - oxygen_target_level;
 
   send_bed_oxygen_level.set_float(bed_oxygen_level, false);
   send_bed_oxygen_level_error_val.set_float(error_val, false);
+   wdt_reset();
   send_oxygen_target_level.set_float(oxygen_target_level, true);
   send_solenoid_on_time_sec.set_int(solenoid_on_time_sec, true);
   send_solenoid_off_time_sec.set_int(solenoid_off_time_sec, true);
+   wdt_reset();
   send_dispense_paused_period_sec.set_int(dispense_paused_period_sec, true);
   send_solenoid_cycles.set_int(solenoid_cycles, true);
   send_current_solenoid_cycles.set_int(cycles, false);
+   wdt_reset();
   send_solenoid_active.set_bool(check_pin_state(gas_output_solenoid), false);
   send_solenoid_paused_timer_active.set_bool(solenoid_paused_timer, false);
+  send_sensor_error.set_bool(sensor_fault, false);
+   wdt_reset();
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~ Output pin state ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

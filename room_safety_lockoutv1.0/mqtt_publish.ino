@@ -53,28 +53,21 @@ char* construct_mqtt_path(char* endpoint){
   strcat(subpath, "/");
   strcat(subpath, LOCATION);
   strcat(subpath, "/");
-  strcat(subpath, "room_safety");
+  strcat(subpath, "device=room_safety");
   strcat(subpath, "/");
   strcat(subpath, endpoint);
   strcpy(pubpath, subpath);
   return pubpath;
 }
 
-GetSet send_status(construct_mqtt_path("system_status"));
 GetSet send_room_oxygen_level(construct_mqtt_path("room_oxygen_level"));
 GetSet send_room_oxygen_safe_level_min(construct_mqtt_path("room_oxygen_safe_level_min"));
 GetSet send_safety_lockout(construct_mqtt_path("safety_lockout"));
+GetSet send_room_sensor_fault(construct_mqtt_path("room_sensor_fault"));
 
 void publishMQTT() {
-
-  if(sensor_fault){
-    send_status.set_string("** Warning Room Oxygen Sensor Error **", false);
-  }else if(safety_lockout){
-    send_status.set_string("Lockout Active", false);
-  }else{
-    send_status.set_string("Active", false);
-  }
   send_room_oxygen_level.set_float(room_oxygen_level, false);
   send_room_oxygen_safe_level_min.set_float(room_oxygen_safe_level_min, true);
   send_safety_lockout.set_bool(safety_lockout, false);
+  send_room_sensor_fault.set_bool(sensor_fault, false);
 }

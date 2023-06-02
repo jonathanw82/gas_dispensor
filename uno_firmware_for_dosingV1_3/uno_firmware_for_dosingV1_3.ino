@@ -11,12 +11,12 @@
 #define WIFI_NAME ssid
 #define WIFI_PASSWORD wifipassword
 #define MQTT_HOST mqtt_host_name
-#define SUBSCRIBE_PATH "Gas_Dispenser/sub/"
-#define DEVICE_NAME "Gas_Dispenser"
-char PUBLISH_PATH[40] = "sensor/Gas_Dispenser/";
+#define SUBSCRIBE_PATH "gas_dispenser/sub/"
+#define DEVICE_NAME "gas_dispenser"
+char PUBLISH_PATH[40] = "sensor/gas_dispenser/";
 char MACADDRESS[18];  // 00:00:00:00:00:00
-char LOCATION[5] = "R1";
-char OWNER[10] = "owner=JON";
+char LOCATION[15] = "location=r1";
+char OWNER[15] = "owner=JON";
 int status = WL_IDLE_STATUS;
 MQTTClient mqtt_client;
 WiFiClient www_client;
@@ -32,6 +32,8 @@ uint16_t solenoid_cycles = 0;
 bool solenoid_paused_timer = false;
 uint16_t cycles = 0;
 bool sensor_fault = false;
+const bool reset_activate_solenoid = true;
+const bool allow_activate_solenoid = false;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Decalre control pins  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,7 +49,7 @@ void watchdogSetup() {
     Serial.println(F("It was a watchdog reset."));
   }
   RSTCTRL.RSTFR |= RSTCTRL_WDRF_bm;
-  wdt_enable(WDT_PERIOD_4KCLK_gc);
+  wdt_enable(WDT_PERIOD_8KCLK_gc);
 #endif
 }
 
@@ -66,16 +68,27 @@ void setup() {
     delay(1000);
   }
   Serial.println("Bed oxygen sensor connected successfully !");
-
   watchdogSetup();
 }
 
 void loop() {
+  unsigned long start = millis();
   wdt_reset();
-  maintain_mqtt_connection();
+  maintain_wifi_connection();
+  if(WiFi.status() == WL_CONNECTED){
+    maintain_mqtt_connection();
+  }
   mqtt_client.loop();
   manage_oxygen_level();
   publishMQTT();
+  unsigned long finish = millis();
+  static unsigned long longnumber = 0;
+
+ if(finish - start > longnumber){
+   longnumber = finish - start;
+    Serial.print("longest loop = ");
+    Serial.println(longnumber);
+ }
 }
 
 float get_bed_oxygen_reading() {
@@ -97,8 +110,8 @@ float get_bed_oxygen_reading() {
     digitalWrite(abmer_solenoid_active_led, off);
     return;
   }
-
-  if (check_oxygen_reading == 0.0) {
+   wdt_reset();
+  if (check_oxygen_reading == 0.0 || check_oxygen_reading > 25.00) {
     error_check++;
     Serial.print("error check = ");
     Serial.println(error_check);
@@ -110,13 +123,12 @@ float get_bed_oxygen_reading() {
 }
 
 void manage_oxygen_level() {
-  static const bool reset_activate_solenoid = true;
-  static const bool allow_activate_solenoid = false;
 
   if (!sensor_fault) {
-    if (get_bed_oxygen_reading() > oxygen_target_level) {
+    if (get_bed_oxygen_reading() >= oxygen_target_level) {
       activate_solenoid(allow_activate_solenoid);  // actiavte solenoid
-    } else if (get_bed_oxygen_reading() <= oxygen_target_level) {
+    } else{
+      Serial.println("we have reset the solenoid");
       activate_solenoid(reset_activate_solenoid);  // sensd true to activate the reset loop and shut down the solenoid
     }
   }
@@ -126,7 +138,6 @@ void activate_solenoid(bool reset) {
   static unsigned long timer = 0;
   static unsigned long solenoid_wait_timer = 0;
   static bool solenoid_active = false;
-
 
   if (reset) {
     // if true set all things off
@@ -153,7 +164,15 @@ void activate_solenoid(bool reset) {
     solenoid_active = !solenoid_active;
     digitalWrite(gas_output_solenoid, !digitalRead(gas_output_solenoid));  // pulse the gas_output solenoid to avoid freezing
     digitalWrite(abmer_solenoid_active_led, !digitalRead(abmer_solenoid_active_led));
-    if (digitalRead(gas_output_solenoid)) Serial.println("Solenoid on"), cycles++, Serial.print("cycle = "), Serial.println(cycles);
+
+    if (digitalRead(gas_output_solenoid)) {
+      Serial.println("Solenoid on");
+      cycles++;
+      Serial.print("cycle = ");
+      Serial.println(cycles);
+      Serial.print("Solenoid = ");
+      Serial.println(solenoid_active);
+    }
     if (!digitalRead(gas_output_solenoid)) Serial.println("Solenoid off");
   }
 

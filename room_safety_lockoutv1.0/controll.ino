@@ -9,7 +9,6 @@ char* str_return_command(char* topic) {
   return output_str;
 }
 
-
 void control_commands(char* topic, char* payload, int payload_length) {
   //Gas_Dispenser/sub/owner=JON/R1/reset
   int array_index = 1;
@@ -26,7 +25,7 @@ void control_commands(char* topic, char* payload, int payload_length) {
   switch (array_index) {
     case 0:
       Serial.print(F("User called reset"));
-      resetFunc();
+      ESP.restart();
       break;
   }
 }
